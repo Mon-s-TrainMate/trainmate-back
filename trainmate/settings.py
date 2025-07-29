@@ -1,3 +1,5 @@
+# trainmate/settings.py
+
 from pathlib import Path
 from decouple import config
 
@@ -16,6 +18,8 @@ DEBUG = config('DEBUG', default=False, cast=bool)
 
 ALLOWED_HOSTS = []
 
+# 커스텀 User 모델 설정
+AUTH_USER_MODEL = 'accounts.User'
 
 # Application definition
 
@@ -26,6 +30,11 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    'rest_framework',
+    'corsheaders',
+    'accounts',
+    'workouts',
+    'members',
 ]
 
 MIDDLEWARE = [
