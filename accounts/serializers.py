@@ -1,12 +1,13 @@
 # accounts/serializers.py
 
 from rest_framework import serializers
-from django.contrib.auth import get_user_model
+from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
 import re
 
 User = get_user_model()
 
+# 회원가입 
 class SignupSerializer(serializers.Serializer):
     name = serializers.CharField(max_length=100)
     email = serializers.EmailField()
@@ -59,3 +60,28 @@ class SignupSerializer(serializers.Serializer):
         )
         
         return user
+    
+# 로그인
+class LoginSerializer(serializers.Serializer):
+    email = serializers.EmailField()
+    password = serializers.CharField(write_only=True)
+
+    def validate(self, data):
+        # 이메일과 비밀번호로 사용자 인증
+        email = data.get('email')
+        password = data.get('password')
+
+        if email and password:
+            # 사용자 인증
+            user = authenticate(username=email, password=password)
+
+            if user:
+                if user.is_active:
+                    data['user'] = user
+                    return data
+                else:
+                    raise serializers.ValidationError("비활성화된 계정입니다.")
+            else:
+                raise serializers.ValidationError("이메일 또는 비밀번호가 올바르지 않습니다.")
+        else:
+            raise serializers.ValidationError("이메일과 비밀번호는 모두 입력해주세요.")

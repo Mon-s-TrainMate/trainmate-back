@@ -31,6 +31,7 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
+    'rest_framework_simplejwt',
     'corsheaders',
     'accounts',
     'workouts',
@@ -131,10 +132,23 @@ STATIC_URL = 'static/'
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 REST_FRAMEWORK = {
+    'DEFAULT_AUTHENTICATION_CLASSES': (
+        'rest_framework_simplejwt.authentication.JWTAuthentication',
+    ),
     'DEFAULT_RENDERER_CLASSES': [
         'rest_framework.renderers.JSONRenderer',
     ],
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
+}
+
+# JWT 설정
+from datetime import timedelta
+
+SIMPLE_JWT = {
+    'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access 토큰 만료시간: 1시간
+    'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh 토큰 만료시간: 7일
+    'ROTATE_REFRESH_TOKENS': True,                   # Refresh 토큰 갱신 시 새 토큰 발행
+    'BLACKLIST_AFTER_ROTATION': True,                # 기존 Refresh 토큰 블랙리스트 처리
 }
