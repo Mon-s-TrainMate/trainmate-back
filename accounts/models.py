@@ -1,7 +1,32 @@
 # accounts/models.py
 
-from django.contrib.auth.models import AbstractUser
+from django.contrib.auth.models import AbstractUser, UserManager
 from django.db import models
+
+class CustomUserManager(UserManager):
+    # 커스텀 유저 매니저 - username 없이 user 생성
+    def create_user(self, email, password=None, **extra_fields):
+        if not email:
+            raise ValueError('이메일은 필수입니다.')
+        
+        email = self.normalize_email(email)
+        user = self.model(email=email, **extra_fields)
+        user.set_password(password)
+        user.save(using=self._db)
+        return user
+    
+    def create_superuser(self, email, password=None, **extra_fields):
+        extra_fields.setdefault('is_staff', True)
+        extra_fields.setdefault('is_superuser', True)
+        extra_fields.setdefault('user_type', 'trainer')  # 기본값 설정
+        extra_fields.setdefault('name', 'Admin')  # 기본값 설정
+        
+        if extra_fields.get('is_staff') is not True:
+            raise ValueError('Superuser must have is_staff=True.')
+        if extra_fields.get('is_superuser') is not True:
+            raise ValueError('Superuser must have is_superuser=True.')
+        
+        return self.create_user(email, password, **extra_fields)
 
 class User(AbstractUser):
     # 커스텀 User 모델
@@ -54,6 +79,9 @@ class User(AbstractUser):
 
     # createsuperuser 필수 입력 필드
     REQUIRED_FIELDS = ['name', 'user_type']
+
+    # 커스텀 매니저 사용
+    objects = CustomUserManager()
 
     class Meta:
         verbose_name = '사용자'
