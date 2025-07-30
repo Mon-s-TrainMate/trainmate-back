@@ -18,8 +18,13 @@ class CustomUserManager(UserManager):
     def create_superuser(self, email, password=None, **extra_fields):
         extra_fields.setdefault('is_staff', True)
         extra_fields.setdefault('is_superuser', True)
-        extra_fields.setdefault('user_type', 'trainer')  # 기본값 설정
-        extra_fields.setdefault('name', 'Admin')  # 기본값 설정
+        extra_fields.setdefault('user_type', 'trainer')
+        extra_fields.setdefault('name', 'Admin')
+
+        # 약관 동의
+        extra_fields.setdefault('terms_agreed', True)
+        extra_fields.setdefault('privacy_agreed', True)
+        extra_fields.setdefault('marketing_agreed', False) # 마케팅은 선택 : false
         
         if extra_fields.get('is_staff') is not True:
             raise ValueError('Superuser must have is_staff=True.')
@@ -65,6 +70,24 @@ class User(AbstractUser):
         verbose_name='사용자 유형',
         help_text='trainer 또는 member'
     )
+
+    # 약관동의 컬럼
+    terms_agreed = models.BooleanField(
+        default=False,
+        verbose_name='서비스 이용약관 동의',
+        help_text='서비스 이용약관 동의 여부(필수)'
+    )
+    privacy_agreed = models.BooleanField(
+        default=False,
+        verbose_name='개인정보 처리방침 동의',
+        help_text='개인정보 수집 및 이용 동의 여부(필수)'
+    )
+    marketing_agreed = models.BooleanField(
+        default=False,
+        verbose_name='마케팅 정보 수신 동의',
+        help_text='이벤트 및 혜택 정보 수신 동의 여부(선택)'
+    )
+
     created_at = models.DateTimeField(
         auto_now_add=True,
         help_text='계정 생성 일시'
@@ -91,3 +114,8 @@ class User(AbstractUser):
 
     def __str__(self):
         return f"{self.name} ({self.email})"
+    
+    # 필수 약관 동의 여부 확인 메서드
+    def has_required_agreements(self):
+        # 마케팅 정보 수신은 필수가 아니므로 제외
+        return self.terms_agreed and self.privacy_agreed
