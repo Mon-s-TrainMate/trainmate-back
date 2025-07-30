@@ -3,17 +3,21 @@
 from rest_framework import serializers
 from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError
+from drf_spectacular.utils import extend_schema_field
 import re
 
 User = get_user_model()
 
 # 회원가입 
 class SignupSerializer(serializers.Serializer):
-    name = serializers.CharField(max_length=100)
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
-    confirm_password = serializers.CharField(write_only=True)
-    user_type = serializers.ChoiceField(choices=[('trainer', 'Trainer'), ('member', 'Member')])
+    name = serializers.CharField(max_length=100, help_text="사용자 실명")
+    email = serializers.EmailField(help_text="로그인에 사용할 이메일 주소")
+    password = serializers.CharField(write_only=True, help_text="10자리 이상, 영문/숫자/특수문자 포함")
+    confirm_password = serializers.CharField(write_only=True, help_text="비밀번호 확인")
+    user_type = serializers.ChoiceField(
+        choices=[('trainer', 'Trainer'), ('member', 'Member')],
+        help_text="사용자 유형 (trainer 또는 member)"
+    )
 
     def validate_email(self, value):
         # 이메일 중복 검사
@@ -63,8 +67,8 @@ class SignupSerializer(serializers.Serializer):
     
 # 로그인
 class LoginSerializer(serializers.Serializer):
-    email = serializers.EmailField()
-    password = serializers.CharField(write_only=True)
+    email = serializers.EmailField(help_text="가입 시 사용한 이메일 주소")
+    password = serializers.CharField(write_only=True, help_text="비밀번호")
 
     def validate(self, data):
         # 이메일과 비밀번호로 사용자 인증

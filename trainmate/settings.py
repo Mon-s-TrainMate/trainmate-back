@@ -1,5 +1,6 @@
 # trainmate/settings.py
 
+
 from pathlib import Path
 from decouple import config
 
@@ -16,7 +17,7 @@ SECRET_KEY = config('SECRET_KEY')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=False, cast=bool)
 
-ALLOWED_HOSTS = []
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='localhost').split(',')
 
 # 커스텀 User 모델 설정
 AUTH_USER_MODEL = 'accounts.User'
@@ -30,9 +31,12 @@ INSTALLED_APPS = [
     'django.contrib.sessions',
     'django.contrib.messages',
     'django.contrib.staticfiles',
+    # second apps
     'rest_framework',
     'rest_framework_simplejwt',
     'corsheaders',
+    'drf_spectacular',
+    # third apps
     'accounts',
     'workouts',
     'members',
@@ -141,6 +145,7 @@ REST_FRAMEWORK = {
     'DEFAULT_PARSER_CLASSES': [
         'rest_framework.parsers.JSONParser',
     ],
+    'DEFAULT_SCHEMA_CLASS': 'drf_spectacular.openapi.AutoSchema',
 }
 
 # JWT 설정
@@ -151,4 +156,15 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh 토큰 만료시간: 7일
     'ROTATE_REFRESH_TOKENS': True,                   # Refresh 토큰 갱신 시 새 토큰 발행
     'BLACKLIST_AFTER_ROTATION': True,                # 기존 Refresh 토큰 블랙리스트 처리
+}
+
+# drf-spectacular 설정
+SPECTACULAR_SETTINGS = {
+    'TITLE': 'Trainmate API',
+    'DESCRIPTION': '트레이너-회원 매칭 플랫폼 API 문서',
+    'VERSION': '1.0.0',
+    'SERVE_INCLUDE_SCHEMA': False,
+    # JWT 인증 설정
+    'COMPONENT_SPLIT_REQUEST': True,
+    'SCHEMA_PATH_PREFIX': '/api/',
 }
