@@ -43,7 +43,10 @@ def get_tokens_for_user(user):
                             "id": 1,
                             "name": "홍길동",
                             "email": "hong@example.com",
-                            "user_type": "trainer"
+                            "user_type": "trainer",
+                            "terms_agreed": "True",
+                            "privacy_agreed": "True",
+                            "marketing_agreed": "True"
                         }
                     }
                 )
