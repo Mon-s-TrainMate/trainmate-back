@@ -18,6 +18,9 @@ class SignupSerializer(serializers.Serializer):
         choices=[('trainer', 'Trainer'), ('member', 'Member')],
         help_text="사용자 유형 (trainer 또는 member)"
     )
+    marketing_agreed = serializers.BooleanField(required=False, default=False) # 선택
+    privacy_agreed = serializers.BooleanField(required=True)
+    terms_agreed = serializers.BooleanField(required=True)
 
     def validate_email(self, value):
         # 이메일 중복 검사
@@ -60,7 +63,10 @@ class SignupSerializer(serializers.Serializer):
             email=validated_data['email'],
             password=validated_data['password'],
             name=validated_data['name'],
-            user_type=validated_data['user_type']
+            user_type=validated_data['user_type'],
+            marketing_agreed=validated_data['marketing_agreed'],
+            privacy_agreed=validated_data['privacy_agreed'],
+            terms_agreed=validated_data['terms_agreed']
         )
         
         return user
