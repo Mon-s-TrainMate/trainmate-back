@@ -68,7 +68,7 @@ def get_user_profile_data(user):
         200: OpenApiResponse(
             response=dict,
             description="프로필 조회 성공",
-            example=[
+            examples=[
                 OpenApiExample(
                     "프로필 조회 성공",
                     value={
