@@ -10,7 +10,7 @@ from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 
 from members.models import Member, Trainer
 
-User = get_user_model
+User = get_user_model()
 
 def get_user_profile_data(user):
     # 유저 타입에 따라 데이터 가져오기
@@ -19,7 +19,7 @@ def get_user_profile_data(user):
         'name': user.name,
         'email': user.email,
         'user_type': user.user_type,
-        'created_at': user.data_joined,
+        'created_at': user.date_joined,
         # 기본값
         'profile_image': None,
         'age': None,
@@ -36,10 +36,10 @@ def get_user_profile_data(user):
             profile_data.update({
                 'profile_image': trainer_profile.profile_image.url if trainer_profile.profile_image else None,
                 'age': trainer_profile.age,
-                'height_cm': trainer_profile.height,
-                'weight_kg': trainer_profile.weight,
-                'body_fat_percentage': trainer_profile.body_fat,
-                'muscle_mass_kg': trainer_profile.muscle_mass,
+                'height_cm': trainer_profile.height_cm,
+                'weight_kg': trainer_profile.weight_kg,
+                'body_fat_percentage': trainer_profile.body_fat_percentage,
+                'muscle_mass_kg': trainer_profile.muscle_mass_kg,
             })
         elif user.user_type == 'member':
             # 로그인 유저 타입이 회원일 때
@@ -47,10 +47,10 @@ def get_user_profile_data(user):
             profile_data.update({
                 'profile_image': member_profile.profile_image.url if member_profile.profile_image else None,
                 'age': member_profile.age,
-                'height_cm': member_profile.height,
-                'weight_kg': member_profile.weight,
-                'body_fat_percentage': member_profile.body_fat,
-                'muscle_mass_kg': member_profile.muscle_mass,
+                'height_cm': member_profile.height_cm,
+                'weight_kg': member_profile.weight_kg,
+                'body_fat_percentage': member_profile.body_fat_percentage,
+                'muscle_mass_kg': member_profile.muscle_mass_kg,
             })
     
     except (Trainer.DoesNotExist, Member.DoesNotExist):
@@ -84,7 +84,7 @@ def get_user_profile_data(user):
                             "weight_kg": 70,
                             "body_fat_percentage": 15.5,
                             "muscle_mass_kg": 35.2,
-                            "create_at": "2024-01-01T00:00:00Z"
+                            "created_at": "2024-01-01T00:00:00Z"
                         }
                     }
                 )
