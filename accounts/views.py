@@ -81,7 +81,8 @@ def signup_api(request):
     errors = serializer.errors if serializer.errors else {}
     if not isinstance(errors, dict):
         errors = {}
-    
+    print(errors)
+
     return Response({
         'success': False,
         'message': '회원가입에 실패했습니다.',

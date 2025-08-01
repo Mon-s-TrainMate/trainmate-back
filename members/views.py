@@ -228,8 +228,11 @@ def update_my_profile(request):
 def trainer_member_list(request):
     # 트레이너의 회원 목록 조회
     try:
-        # 현재 로그인한 사용자가 트레이너인 지 확인
-        trainer = get_object_or_404(Trainer, user=request.user)
+        # 현재 로그인한 사용자가 트레이너인지 확인
+        print(request.user.id)
+        # trainer = get_object_or_404(Trainer, user_id=request.user.id)
+        trainer = Trainer.objects.get(user_id=request.user.id)
+        print(trainer)
 
         # 내 프로필 정보
         trainer_data = {
