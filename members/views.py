@@ -7,7 +7,8 @@ from rest_framework.permissions import IsAuthenticated
 from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
+from drf_spectacular.openapi import OpenApiTypes
 from .serializers import TrainerProfileSerializer, MemberListSerializer
 
 from members.models import Member, Trainer
@@ -63,6 +64,7 @@ def get_user_profile_data(user):
 
 
 
+# 내 프로필 조회
 @extend_schema(
     summary="내 프로필 조회",
     description="현재 로그인한 사용자의 프로필 정보를 조회합니다.",
@@ -108,6 +110,7 @@ def get_my_profile(request):
 
 
 
+# 다른 사용자 프로필 조회
 @extend_schema(
     summary="다른 사용자 프로필 조회",
     description="특정 사용자의 공개 프로필 정보를 조회합니다.",
@@ -131,6 +134,7 @@ def get_user_profile(request, user_id):
 
 
 
+# 프로필 수정
 @extend_schema(
     summary="프로필 수정",
     description="현재 로그인한 사용자의 프로필 정보를 수정합니다.",
@@ -202,9 +206,10 @@ def update_my_profile(request):
             'message': '프로필 수정에 실패했습니다.',
             'error': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
-    
 
 
+
+# 회원 목록 조회
 @extend_schema(
         operation_id='get_trainer_members',
         tags=['회원관리'],
@@ -228,7 +233,7 @@ def trainer_member_list(request):
 
         # 내 프로필 정보
         trainer_data = {
-            'profile_image': trainer.profile_image if trainer.profile_image else None,
+            'profile_image': trainer.profile_image.url if trainer.profile_image else None,
             'name': trainer.user.name,
             'email': trainer.user.email,
             'updated_at': trainer.updated_at,
@@ -243,7 +248,7 @@ def trainer_member_list(request):
         for member in members:
             members_data.append({
                 'id': member.id,
-                'profile_image': member.profile_image if member.profile_image else None,
+                'profile_image': member.profile_image.url if member.profile_image else None,
                 'email': member.user.email,
                 'name': member.user.name,
                 'updated_at': member.updated_at,
@@ -269,4 +274,193 @@ def trainer_member_list(request):
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# 회원 등록
+@extend_schema(
+    operation_id='register_member_to_trainer',
+    tags=['회원관리'],
+    summary='트레이너의 회원 등록',
+    description='검색된 회원을 현재 로그인한 트레이너의 담당 회원으로 등록합니다.',
+    request={
+        'application/json': {
+        'type': 'object',
+        'properties': {
+            'user_id': {
+                'type': 'integer',
+                'description': '등록할 회원의 User ID'
+            }
+        },'required': ['user_id']}
+    },
+    responses={
+        201: OpenApiResponse(description='등록 성공'),
+        400: OpenApiResponse(description='잘못된 요청'),
+        401: OpenApiResponse(description='인증 실패'),
+        404: OpenApiResponse(description='회원을 찾을 수 없음'),
+        409: OpenApiResponse(description='이미 등록된 회원')
+    }
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def register_member_to_trainer(request):
+    # 트레이너의 회원 등록 - 기존 Member에 trainer_id 업데이트
+    try:
+        # 현재 사용자가 트레이너인지 확인
+        trainer = get_object_or_404(Trainer, user=request.user)
+
+        user_id = request.data.get('user_id')
+        if not user_id:
+            return Response({
+                'error': 'MISSING_USER_ID',
+                'message': '등록할 회원의 아이디가 필요합니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        try:
+            # 등록할 사용자 확인
+            target_user = User.objects.get(id=user_id, user_type='member')
+        except User.DoesNotExist:
+            return Response({
+                'error': 'USER_NOT_FOUND',
+                'message': '해당 회원을 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # Member 프로필 확인
+        try:
+            member = Member.objects.get(user=target_user)
+        except Member.DoesNotExist:
+            return Response({
+                'error': 'MEMBER_PROFILE_NOT_FOUND',
+                'message': '회원 프로필을 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # 이미 다른 트레이너에게 등록된 회원인지 확인
+        if member.trainer is not None:
+            return Response({
+                'error': 'MEMBER_ALREADY_ASSIGNED',
+                'message': '이미 다른 트레이너의 회원입니다.',
+                'details': {
+                    'member_name': target_user.name,
+                    'current_trainer': member.trainer.user.name
+                }
+            }, status=status.HTTP_409_CONFLICT)
+        
+        # 트레이너의 회원 등록(기존 Member 레코드 업데이트)
+        member.trainer = trainer
+        member.save()
+
+        return Response({
+            'success': True,
+            'message': '회원이 성공적으로 등록되었습니다.',
+            'data': {
+                'member': {
+                    'id': member.id,
+                    'name': member.user.name,
+                    'email': member.user.email,
+                    'trainer_name': trainer.user.name,
+                    'assigned_at': member.updated_at
+                }
+            }
+        }, status=status.HTTP_200_OK) # 201(생성완료) -> 생성이 아닌 업데이트
+    
+    except Exception as e:
+        return Response({
+            'error': 'INTERNAL_SERVER_ERROR',
+            'message': '서버 오류가 발생했습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+# 회원 검색
+@extend_schema(
+    operation_id='search_users_for_trainer',
+    tags=['회원관리'],
+    summary='회원 검색',
+    description='트레이너가 등록할 회원을 이름 또는 이메일로 검색합니다.',
+    parameters=[
+        OpenApiParameter(
+            name='query',
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description='검색할 회원의 이름 또는 이메일',
+            required=True
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description='검색 성공'),
+        400: OpenApiResponse(description='잘못된 요청'),
+        401: OpenApiResponse(description='인증 실패'),
+        404: OpenApiResponse(description='검색 결과 없음')
+    }
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def search_users_for_registration(request):
+    # 트레이너가 등록할 회원 검색
+    try:
+        # 현재 사용자가 트레이너인지 확인
+        trainer = get_object_or_404(Trainer, user=request.user)
+
+        query = request.GET.get('query', '').strip()
+        if not query:
+            return Response({
+                'error': 'MISSING_QUERY',
+                'message': '검색어를 입력해주세요.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 트레이너가 미배정된 회원들만 검색
+        unassigned_member_user_ids = Member.objects.filter(
+            trainer=None # 트레이너가 배정되지 않은 회원들
+        ).values_list('user_id', flat=True)
+
+        # 검색 실행
+        users = User.objects.filter(
+            Q(name__icontains=query) | Q(email__icontains=query), # 이름 또는 이메일로 검색
+            user_type='member',
+            id__in=unassigned_member_user_ids # 미배정 회원만
+        ).exclude(
+            id=request.user.id # 본인 제외
+        )[:10]
+
+        if not users.exists():
+            return Response({
+                'error': 'NO_SEARCH_RESULTS',
+                'message': '검색 조건에 맞는 회원이 없습니다.',
+                'details': {
+                    'query': query,
+                    'suggestion': '이름 또는 이메일을 정확히 입력해주세요.'
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # 검색 결과 반환
+        users_data = []
+        for user in users:
+            users_data.append({
+                'id': user.id,
+                'name': user.name,
+                'email': user.email,
+                'user_type': user.user_type,
+                'date_joined': user.date_joined
+            })
+
+        return Response({
+            'success': True,
+            'data': {
+                'users': users_data,
+                'total_count': len(users_data),
+                'query': query
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Trainer.DoesNotExist:
+        return Response({
+            'error': 'TRAINER_NOT_FOUND',
+            'message': '트레이너 정보를 찾을 수 없습니다.'
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'error': 'INTERNAL_SERVER_ERROR',
+            'message': '서버 오류가 발생했습니다.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

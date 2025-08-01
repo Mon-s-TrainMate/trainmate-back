@@ -108,7 +108,9 @@ class Member(models.Model):
         on_delete=models.CASCADE,
         related_name='members',
         verbose_name='담당 트레이너',
-        help_text='소속 트레이너'
+        help_text='소속 트레이너',
+        null=True,
+        blank=True
     )
     profile_image = models.ImageField(
         upload_to='member_profile/',
