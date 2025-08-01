@@ -15,7 +15,7 @@ urlpatterns = [
 
     # 트레이너의 회원 목록 조회
     # /api/members
-    path('', views.trainer_members_list, name='trainer_members_list'),
+    path('', views.trainer_member_list, name='trainer_member_list'),
     # /api/members/123/
-    path('<int:member_id', views.member_detail, name='member_detail')
+    # path('<int:member_id', views.member_detail, name='member_detail')
 ]
