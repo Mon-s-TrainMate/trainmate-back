@@ -4,9 +4,11 @@ from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
+from django.db.models import Q
 from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from .serializers import TrainerProfileSerializer, MemberListSerializer
 
 from members.models import Member, Trainer
 
@@ -200,3 +202,69 @@ def update_my_profile(request):
             'message': '프로필 수정에 실패했습니다.',
             'error': str(e)
         }, status=status.HTTP_400_BAD_REQUEST)
+    
+
+
+@extend_schema(
+        operation_id='get_trainer_members',
+        tags=['회원관리'],
+        summary='트레이너의 회원 목록 조회',
+        description='트레이너의 회원 목록 조회',
+        responses={
+            200: OpenApiResponse(description='성공'),
+            401: OpenApiResponse(description='인증 실패'),
+            403: OpenApiResponse(description='트레이너 권한 필요'),
+            404: OpenApiResponse(description='트레이너 정보 없음'),
+            500: OpenApiResponse(description='서버 오류')
+        }
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def trainer_member_list(request):
+    # 트레이너의 회원 목록 조회
+    try:
+        # 현재 로그인한 사용자가 트레이너인 지 확인
+        trainer = get_object_or_404(Trainer, user=request.user)
+
+        # 내 프로필 정보
+        trainer_data = {
+            'profile_image': trainer.profile_image if trainer.profile_image else None,
+            'name': trainer.user.name,
+            'email': trainer.user.email,
+            'updated_at': trainer.updated_at,
+            'is_my_profile': True, # 내 프로필 구분용
+            'member_count': trainer.get_member_count()
+        }
+
+        # 담당 회원 목록(활성 회원만)
+        members = trainer.get_active_members().select_ralated('user').order_by('-updated_at')
+
+        members_data = []
+        for member in members:
+            members_data.append({
+                'id': member.id,
+                'profile_image': member.profile_image if member.profile_image else None,
+                'name': member.user.name,
+                'updated_at': member.updated_at,
+                'is_my_profile': False,
+                'profile_completed': member.profile_completed
+            })
+        return Response({
+            'success': True,
+            'data': {
+                'trainer_profile': trainer_data,
+                'members': members_data,
+                'total_count': len(members_data)
+            }
+        }, status=status.HTTP_200_OK)
+    except Trainer.DoesNotExist:
+        return Response({
+            'error': 'TRAINER_NOT_FOUND',
+            'message': '트레이너 정보를 찾을 수 없습니다.'
+        }, status=status.HTTP_404_NOT_FOUND)
+    
+    except Exception as e:
+        return Response({
+            'error': 'INTERNAL_SERVER_ERROR',
+            'message': '서버 오류가 발생했습니다'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

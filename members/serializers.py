@@ -2,7 +2,7 @@
 
 from rest_framework import serializers
 from django.contrib.auth import get_user_model
-from members.models import Member
+from .models import Trainer, Member
 
 User = get_user_model()
 
@@ -54,3 +54,34 @@ class ProfileUpdateResponseSerializer(serializers.Serializer):
     success = serializers.BooleanField()
     message = serializers.CharField()
     user = ProfileSerializer()
+
+
+# 회원 목록 관련
+class TrainerProfileSerializer(serializers.ModelSerializer):
+    # 트레이너 프로필 시리얼라이저
+    name = serializers.CharField(source='user.name', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    member_count = serializers.SerializerMethodField()
+
+    class Meta:
+        model = Trainer
+        fields = ['profile_image', 'name', 'email', 'updated_at', 'is_my_profile', 'member_count']
+
+    def get_member_count(self, obj):
+        return obj.get_member_count()
+    
+    def get_is_my_profile(self, obj):
+        return True
+    
+class MemberListSerializer(serializers.ModelSerializer):
+    # 회원 목록용 시리얼라이저
+    name = serializers.CharField(source='user.name', read_only=True)
+    email = serializers.EmailField(source='user.email', read_only=True)
+    is_my_profile = serializers.SerializerMethodField()
+
+    class meta:
+        model = Member
+        fields = ['id', 'profile_image', 'name', 'email', 'updated_at', 'is_my_profile', 'profile_completed']
+
+    def get_is_my_profile(self, obj):
+        return False
