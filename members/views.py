@@ -237,13 +237,14 @@ def trainer_member_list(request):
         }
 
         # 담당 회원 목록(활성 회원만)
-        members = trainer.get_active_members().select_ralated('user').order_by('-updated_at')
+        members = trainer.get_active_members().select_related('user').order_by('-updated_at')
 
         members_data = []
         for member in members:
             members_data.append({
                 'id': member.id,
                 'profile_image': member.profile_image if member.profile_image else None,
+                'email': member.user.email,
                 'name': member.user.name,
                 'updated_at': member.updated_at,
                 'is_my_profile': False,
@@ -257,6 +258,7 @@ def trainer_member_list(request):
                 'total_count': len(members_data)
             }
         }, status=status.HTTP_200_OK)
+    
     except Trainer.DoesNotExist:
         return Response({
             'error': 'TRAINER_NOT_FOUND',
