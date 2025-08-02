@@ -54,23 +54,36 @@ class SignupSerializer(serializers.Serializer):
             raise serializers.ValidationError("비밀번호가 일치하지 않습니다.")
         return data
     
+    @transaction.atomic
     def create(self, validated_data):
-        # 사용자 생성
+        # user_type에 따라 Trainer 또는 Member 인스턴스 생성
+        # 기존 User 대신 상속받은 모델로 직접 생성
+
+        from members.models import Trainer, Member
+
         validated_data.pop('confirm_password')
 
-        user = User.objects.create_user(
-            # 이메일을 username으로 사용
-            email=validated_data['email'],
-            password=validated_data['password'],
-            name=validated_data['name'],
-            user_type=validated_data['user_type'],
-            marketing_agreed=validated_data['marketing_agreed'],
-            privacy_agreed=validated_data['privacy_agreed'],
-            terms_agreed=validated_data['terms_agreed']
-        )
+        password = validated_data.pop('password')
+        user_type = validated_data.pop('user_type')
+
+        # user_type에 따라 적절한 모델로 인스턴스 생성
+        if user_type == 'trainer':
+            # Trainer 인스턴스 생성(User 상속)
+            user = Trainer.objects.create_user(
+                password=password,
+                **validated_data
+            )
+        else:
+            # 일반 User 생성(예외 상황)
+            user = User.objects.create_user(
+                password=password,
+                **validated_data
+            )
         
         return user
-    
+
+
+
 # 로그인
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(help_text="가입 시 사용한 이메일 주소")
