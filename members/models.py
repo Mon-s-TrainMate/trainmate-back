@@ -5,7 +5,7 @@ from accounts.models import User
 
 class Trainer(User):
     # 트레이너 프로필 모델
-    # Multi-table 상속 방식 사용
+    # User 상속
     # 프로필 정보 및 신체 정보 관리
     # 회원관리
     profile_image = models.ImageField(
@@ -81,16 +81,17 @@ class Trainer(User):
 
 class Member(User):
     # 회원 프로필 모델
-    # Multi-table 상속 방식 사용
+    # User 상속
     # Trainer와 다대일 관계(한 트레이너가 여러 회원 담당)
     assigned_trainer = models.ForeignKey(
         Trainer,
         on_delete=models.CASCADE,
-        related_name='trinaer_members',
+        related_name='members',
         verbose_name='담당 트레이너',
         help_text='소속 트레이너',
         null=True,
-        blank=True
+        blank=True,
+        db_column='trainer_id'
     )
     profile_image = models.ImageField(
         upload_to='member_profile/',
@@ -149,11 +150,9 @@ class Member(User):
         db_table = 'member'
     
     def __str__(self):
-        trainer_name = self.assigned_trainer.name if self.assigned_trainer else "미배정"
-        return f"회원: {self.name} (담당: {trainer_name})"
+        trainer_name = self.trainer.name if self.trainer else "미배정"
+        return f"회원: {self.user.name} (담당: {trainer_name})"
     
     @property
     def trainer(self):
-        # assigned_trainer > trainer 접근
-        # trainer를 필드명으로 인식하는 충돌 해결
         return self.assigned_trainer

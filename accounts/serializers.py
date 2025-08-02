@@ -11,6 +11,8 @@ User = get_user_model()
 
 # 회원가입 
 class SignupSerializer(serializers.Serializer):
+    # user_type에 따라 Trainer 또는 Member 인스턴스 직접 생성
+    # Multi-table 상속
     name = serializers.CharField(max_length=100, help_text="사용자 실명")
     email = serializers.EmailField(help_text="로그인에 사용할 이메일 주소")
     password = serializers.CharField(write_only=True, help_text="10자리 이상, 영문/숫자/특수문자 포함")
@@ -57,34 +59,40 @@ class SignupSerializer(serializers.Serializer):
     
     @transaction.atomic
     def create(self, validated_data):
-        # user_type에 따라 Trainer 또는 Member 인스턴스 생성
-        # 기존 User 대신 상속받은 모델로 직접 생성
-
+        # 사용자 생성
         from members.models import Trainer, Member
-
+    
         validated_data.pop('confirm_password')
-
         password = validated_data.pop('password')
-        user_type = validated_data.pop('user_type')
-
-        # user_type에 따라 적절한 모델로 인스턴스 생성
-        if user_type == 'trainer':
-            # Trainer 인스턴스 생성(User 상속)
-            user = Trainer.objects.create_user(
-                password=password,
-                **validated_data
-            )
-        else:
-            # 일반 User 생성(예외 상황)
-            user = User.objects.create_user(
-                password=password,
-                **validated_data
-            )
+        user_type = validated_data.get('user_type')
         
-        return user
-
-
-
+        try:
+            if user_type == 'trainer':
+                # Trainer 인스턴스 직접 생성 (User 상속받음)
+                user = Trainer.objects.create_user(
+                    password=password,
+                    **validated_data
+                )
+            elif user_type == 'member':
+                # Member 인스턴스 직접 생성 (User 상속받음)
+                user = Member.objects.create_user(
+                    password=password,
+                    **validated_data
+                )
+            else:
+                user = User.objects.create_user(
+                    password=password,
+                    **validated_data
+                )
+            
+            return user
+            
+        except Exception as e:
+            print(f"오류: {e}")
+            import traceback
+            print(traceback.format_exc())
+            raise serializers.ValidationError(f"사용자 생성 중 오류가 발생했습니다: {str(e)}")
+    
 # 로그인
 class LoginSerializer(serializers.Serializer):
     email = serializers.EmailField(help_text="가입 시 사용한 이메일 주소")
