@@ -269,19 +269,19 @@ def trainer_member_list(request):
             try:
                 memebr_info = {
                     'id': member.id,
-                    'profile_image': member.profile_image_url if member.profile_image else None,
-                    'name': member.name,
-                    'email': member.email,
-                    'updated_at': member.updated_at,
+                    'profile_image': member.profile_image.url if member.profile_image else None,
+                    'name': getattr(member, 'name', 'Unknown'),
+                    'email': getattr(member, 'email', 'unknown@example.com'),
+                    'updated_at': member.updated_at.isoformat() if hasattr(member, 'updated_at') and member.updated_at else None,
                     'is_my_profile': False,
-                    'profile_completed': member.profile_completed
+                    'profile_completed': getattr(member, 'profile_completed', False)
                 }
                 members_data.append(memebr_info)
                 print(f"회원 데이터 추가: {memebr_info['name']}")
             except Exception as e:
                 print(f"회원 데이터 구성 중 오류: {e}")
                 continue
-            
+
         return Response({
             'success': True,
             'data': {
@@ -487,6 +487,167 @@ def search_users_for_registration(request):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
+        return Response({
+            'error': 'INTERNAL_SERVER_ERROR',
+            'message': '서버 오류가 발생했습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@extend_schema(
+    operation_id='get_trainer_detail',
+    tags=['프로필'],
+    summary='트레이너 상세 정보 조회',
+    description='특정 트레이너의 상세 정보를 조회합니다.',
+    parameters=[
+        OpenApiParameter(
+            name='trainer_id',
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description='조회할 트레이너의 ID',
+            required=True
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description='트레이너 정보 조회 성공'),
+        401: OpenApiResponse(description='인증 필요'),
+        404: OpenApiResponse(description='트레이너를 찾을 수 없음'),
+        500: OpenApiResponse(description='서버 오류')
+    }
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def trainer_detail(request, trainer_id):
+    # 트레이너 상세 조회
+    try:
+        # 트레이너 정보 가져오기
+        try:
+            trainer = Trainer.objects.get(id=trainer_id)
+        except Trainer.DoesNotExist:
+            return Response({
+                'error': 'TRAINER_NOT_FOUND',
+                'message': '트레이너를 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # 트레이너 상세 정보 구성
+        trainer_data = {
+            'id': trainer.id,
+            'profile_image': trainer.profile_image.url if trainer.profile_image else None,
+            'name': getattr(trainer, 'username', 'Unknown'),
+            'email': getattr(trainer, 'email', 'unknown@example.com'),
+            'age': getattr(trainer, 'age', None),
+            'height_cm': float(trainer.height_cm) if trainer.height_cm else None,
+            'weight_kg': float(trainer.weight_kg) if trainer.weight_kg else None,
+            'body_fat_percentage': float(trainer.body_fat_percentage) if trainer.body_fat_percentage else None,
+            'muscle_mass_kg': float(trainer.muscle_mass_kg) if trainer.muscle_mass_kg else None,
+            'profile_completed': getattr(trainer, 'profile_completed', False),
+            'is_active': getattr(trainer, 'is_active', True),
+            'created_at': trainer.date_joined.isoformat() if hasattr(trainer, 'date_joined') else None,
+            'updated_at': trainer.updated_at.isoformat() if hasattr(trainer, 'updated_at') and trainer.updated_at else None,
+            'is_my_profile': request.user.id == trainer.user_ptr_id,
+            'member_count': trainer.get_member_count() if hasattr(trainer, 'get_member_count') else 0
+        }
+
+        return Response({
+            'success': True,
+            'data': {
+                'trainer': trainer_data
+            }
+        }, status=status.HTTP_200_OK)
+
+    except Exception as e:
+        print(f"trainer_detail 예외 발생: {type(e).__name__}: {e}")
+        import traceback
+        print(f"상세 오류: {traceback.format_exc()}")
+        return Response({
+            'error': 'INTERNAL_SERVER_ERROR',
+            'message': '서버 오류가 발생했습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@extend_schema(
+    operation='get_memebr_detail',
+    tags=['회원관리'],
+    description='특정 회원의 상세 정보를 조회합니다.',
+    parameters=[
+        OpenApiParameter(
+            name='member_id',
+            type=OpenApiTypes.INT,
+            location=OpenApiParameter.PATH,
+            description='조회할 회원의 ID',
+            required=True
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description='회원 정보 조회 성공'),
+        401: OpenApiResponse(description='인증 실패'),
+        403: OpenApiParameter(description='권한 없음'),
+        404: OpenApiParameter(description='회원을 찾을 수 없음'),
+        500: OpenApiParameter(description='서버 오류')
+    }
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def member_detail(request, member_id):
+    # 회원 상세 정보 조회
+    try:
+        # 조회하려는 회원 정보 가져오기
+        try:
+            member = Member.objects.get(id=member_id)
+        except Member.DoesNotExist:
+            return Response({
+                'error': 'MEMBER_NOT_FOUND',
+                'message': '회원을 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+        
+        # 회원 상세 정보 구성
+        member_data = {
+            'id': member.id,
+            'profile_image': member.profile_image.url if member.profile_image else None,
+            'name': getattr(member, 'name', 'Unknown'),
+            'email': getattr(member, 'email', 'unknown@example.com'),
+            'height_cm': float(member.height_cm) if member.height_cm else None,
+            'weight_kg': float(member.weight_kg) if member.weight_kg else None,
+            'body_fat_percentage': float(member.body_fat_percentage) if member.body_fat_percentage else None,
+            'muscle_mass_kg': float(member.muscle_mass_kg) if member.muscle_mass_kg else None,
+            'profile_completed': getattr(member, 'profile_completed', False),
+            'is_active': getattr(member, 'is_active', True),
+            'created_at': member.date_joined.isoformat() if hasattr(member, 'date_joined') else None,
+            'updated_at': member.updated_at.isoformat() if hasattr(member, 'updated_at') and member.updated_at else None,
+            'is_my_profile': request.user.id == member.user_ptr_id,
+        }
+
+        # 트레이너 정보 추가
+        if member.assigned_trainer:
+            member_data['trainer_info'] = {
+                'id': member.assigned_trainer.id,
+                'name': member.name,
+                'email': member.email,
+                'profile_image': member.profile_image
+            }
+        else:
+            member_data['trainer_info'] = None
+        
+        # 현재 사용자 정보
+        viewer_info = {
+            'id': request.user.id,
+            'user_type': request.user.user_type,
+            'name': request.user.name
+        }
+
+        return Response({
+            'success': True,
+            'data': {
+                'member': member_data,
+                'viewer_info': viewer_info
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"member_detail 예외 발생: {type(e).__name__}: {e}")
+        import traceback
+        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'

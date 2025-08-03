@@ -17,5 +17,5 @@ urlpatterns = [
     # /api/members
     path('', views.trainer_member_list, name='trainer_member_list'),
     # /api/members/123/
-    # path('<int:member_id', views.member_detail, name='member_detail')
+    path('<int:member_id>', views.member_detail, name='member_detail')
 ]
