@@ -69,14 +69,19 @@ class Trainer(User):
     
     def get_member_count(self):
         # 담당 회원 수
-        return self.trainer_members.count()
-    
+        try:
+            # related_name='members'를 통한 역참조 사용
+            return self.members.filter(is_active=True).count()
+        except Exception as e:
+            print(f"get_member_count 오류: {e}")
+            return 0
+        
     def get_active_members(self):
-        # 활성 회원 목록 반환
-        # is_active : django에서 제공하는 기본 사용자 관리 시스템
-        # False : 로그인 불가능, 정지, 탈퇴 등. 데이터는 유지 되지만 서비스 이용 불가 상태
-        return self.trainer_members.filter(is_active=True)
-    
+        try:
+            return self.members.filter(is_active=True)
+        except Exception as e:
+            print(f"get_active_members 오류 : {e}")
+            return Member.objects.none()
 
 
 class Member(User):
@@ -150,8 +155,12 @@ class Member(User):
         db_table = 'member'
     
     def __str__(self):
-        trainer_name = self.trainer.name if self.trainer else "미배정"
-        return f"회원: {self.user.name} (담당: {trainer_name})"
+        trainer_name = self.assigned_trainer.name if self.assigned_trainer else "미배정"
+        if hasattr(self, 'name') and self.name:
+            return f"회원: {self.name} (담당: {trainer_name})"
+        else:
+            # User 모델의 기본 필드들 사용
+            return f"회원: {self.username} (담당: {trainer_name})"
     
     @property
     def trainer(self):

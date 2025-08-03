@@ -3,8 +3,6 @@
 from rest_framework import serializers
 from django.db import transaction
 from django.contrib.auth import get_user_model, authenticate
-from django.core.exceptions import ValidationError
-from drf_spectacular.utils import extend_schema_field
 import re
 
 User = get_user_model()

@@ -230,34 +230,58 @@ def trainer_member_list(request):
     try:
         # 현재 로그인한 사용자가 트레이너인지 확인
         print(request.user.id)
-        # trainer = get_object_or_404(Trainer, user_id=request.user.id)
-        trainer = Trainer.objects.get(user_id=request.user.id)
+        # trainer = get_object_or_404(Trainer, user_ptr_id=request.user.id)
+        trainer = Trainer.objects.get(user_ptr_id=request.user.id)
         print(trainer)
+
+        print(f"trainer.profile_image: {trainer.profile_image}")
+        print(f"trainer.updated_at: {trainer.updated_at}")
+
+        try:
+            member_count = trainer.get_member_count()
+            print(f"member_count: {member_count}")
+        except Exception as e:
+            print(f"get_member_count() 오류: {e}")
+            member_count = 0
 
         # 내 프로필 정보
         trainer_data = {
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
-            'name': trainer.user.name,
-            'email': trainer.user.email,
+            'name': trainer.name,
+            'email': trainer.email,
             'updated_at': trainer.updated_at,
             'is_my_profile': True, # 내 프로필 구분용
             'member_count': trainer.get_member_count()
         }
+        print(f"trainer_data: {trainer_data}")
 
         # 담당 회원 목록(활성 회원만)
-        members = trainer.get_active_members().select_related('user').order_by('-updated_at')
+        print("=== 회원 목록 조회 ===")
+        try:
+            members = trainer.get_active_members()
+            print(f"회원 목록 조회 성공: {members.count()}명")
+        except Exception as e:
+            print(f"get_active_members 오류: {e}")
+            members = []
 
         members_data = []
         for member in members:
-            members_data.append({
-                'id': member.id,
-                'profile_image': member.profile_image.url if member.profile_image else None,
-                'email': member.user.email,
-                'name': member.user.name,
-                'updated_at': member.updated_at,
-                'is_my_profile': False,
-                'profile_completed': member.profile_completed
-            })
+            try:
+                memebr_info = {
+                    'id': member.id,
+                    'profile_image': member.profile_image_url if member.profile_image else None,
+                    'name': member.name,
+                    'email': member.email,
+                    'updated_at': member.updated_at,
+                    'is_my_profile': False,
+                    'profile_completed': member.profile_completed
+                }
+                members_data.append(memebr_info)
+                print(f"회원 데이터 추가: {memebr_info['name']}")
+            except Exception as e:
+                print(f"회원 데이터 구성 중 오류: {e}")
+                continue
+            
         return Response({
             'success': True,
             'data': {
