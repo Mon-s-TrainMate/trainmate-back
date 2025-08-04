@@ -26,6 +26,7 @@ def get_tokens_for_user(user):
     }
 
 @extend_schema(
+    operation_id='user_signup',
     summary="회원가입",
     description="새로운 사용자를 등록합니다. trainer 또는 member로 구분하여 가입할 수 있습니다.",
     request=SignupSerializer,
@@ -56,7 +57,6 @@ def get_tokens_for_user(user):
     },
     tags=["인증"]
 )
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def signup(request):
@@ -89,7 +89,10 @@ def signup(request):
         'errors': errors
     }, status=status.HTTP_400_BAD_REQUEST)
 
+
+
 @extend_schema(
+    operation_id='user_login',
     summary="로그인",
     description="이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다.",
     request=LoginSerializer,
@@ -121,7 +124,6 @@ def signup(request):
     },
     tags=["인증"]
 )
-
 @api_view(['POST'])
 @permission_classes([AllowAny])
 def login_api(request):

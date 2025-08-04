@@ -211,7 +211,7 @@ def update_my_profile(request):
 
 # 회원 목록 조회
 @extend_schema(
-        operation_id='get_trainer_members',
+        operation_id='list_trainer_members',
         tags=['회원관리'],
         summary='트레이너의 회원 목록 조회',
         description='트레이너의 회원 목록 조회',
@@ -237,6 +237,7 @@ def trainer_member_list(request):
         print(f"trainer.profile_image: {trainer.profile_image}")
         print(f"trainer.updated_at: {trainer.updated_at}")
 
+        # 회원 수 계산
         try:
             member_count = trainer.get_member_count()
             print(f"member_count: {member_count}")
@@ -247,11 +248,11 @@ def trainer_member_list(request):
         # 내 프로필 정보
         trainer_data = {
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
-            'name': trainer.name,
-            'email': trainer.email,
-            'updated_at': trainer.updated_at,
-            'is_my_profile': True, # 내 프로필 구분용
-            'member_count': trainer.get_member_count()
+            'name': getattr(trainer, 'name', 'Unknown'),
+            'email': getattr(trainer, 'email', 'unknown@example.com'),
+            'updated_at': trainer.updated_at.isoformat() if trainer.updated_at else None,
+            'is_my_profile': True,
+            'member_count': member_count
         }
         print(f"trainer_data: {trainer_data}")
 
@@ -267,7 +268,7 @@ def trainer_member_list(request):
         members_data = []
         for member in members:
             try:
-                memebr_info = {
+                member_info = {
                     'id': member.id,
                     'profile_image': member.profile_image.url if member.profile_image else None,
                     'name': getattr(member, 'name', 'Unknown'),
@@ -276,8 +277,8 @@ def trainer_member_list(request):
                     'is_my_profile': False,
                     'profile_completed': getattr(member, 'profile_completed', False)
                 }
-                members_data.append(memebr_info)
-                print(f"회원 데이터 추가: {memebr_info['name']}")
+                members_data.append(member_info)
+                print(f"회원 데이터 추가: {member_info['name']}")
             except Exception as e:
                 print(f"회원 데이터 구성 중 오류: {e}")
                 continue
@@ -567,8 +568,9 @@ def trainer_detail(request, trainer_id):
 
 
 @extend_schema(
-    operation='get_memebr_detail',
-    tags=['회원관리'],
+    operation_id='get_memebr_detail',
+    tags=['프로필'],
+    summary='회원 상세 정보 조회',
     description='특정 회원의 상세 정보를 조회합니다.',
     parameters=[
         OpenApiParameter(
@@ -622,9 +624,9 @@ def member_detail(request, member_id):
         if member.assigned_trainer:
             member_data['trainer_info'] = {
                 'id': member.assigned_trainer.id,
-                'name': member.name,
-                'email': member.email,
-                'profile_image': member.profile_image
+                'name': getattr(member.assigned_trainer, 'name', 'Unknown'),
+                'email': getattr(member.assigned_trainer, 'email', 'unknown@example.com'),
+                'profile_image': member.assigned_trainer.profile_image.url if member.assigned_trainer.profile_image else None
             }
         else:
             member_data['trainer_info'] = None

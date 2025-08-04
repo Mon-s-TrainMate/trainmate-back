@@ -1,0 +1,361 @@
+openapi: 3.0.3
+info:
+  title: Trainmate API
+  version: 1.0.0
+  description: 트레이너-회원 매칭 플랫폼 API 문서
+paths:
+  /api/members/:
+    get:
+      operationId: list_trainer_members
+      description: 트레이너의 회원 목록 조회
+      summary: 트레이너의 회원 목록 조회
+      tags:
+      - 회원관리
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 성공
+        '401':
+          description: 인증 실패
+        '403':
+          description: 트레이너 권한 필요
+        '404':
+          description: 트레이너 정보 없음
+        '500':
+          description: 서버 오류
+  /api/members/{member_id}/:
+    get:
+      operationId: get_memebr_detail
+      description: 특정 회원의 상세 정보를 조회합니다.
+      summary: 회원 상세 정보 조회
+      parameters:
+      - in: path
+        name: member_id
+        schema:
+          type: integer
+        description: 조회할 회원의 ID
+        required: true
+      tags:
+      - 프로필
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 회원 정보 조회 성공
+        '401':
+          description: 인증 실패
+        '403':
+          description: 권한 없음
+        '404':
+          description: 회원을 찾을 수 없음
+        '500':
+          description: 서버 오류
+  /api/members/profile/:
+    get:
+      operationId: members_profile_retrieve
+      description: 현재 로그인한 사용자의 프로필 정보를 조회합니다.
+      summary: 내 프로필 조회
+      tags:
+      - 프로필
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                프로필조회성공:
+                  value:
+                    success: true
+                    user:
+                      id: 1
+                      name: 홍길동
+                      email: hong@example.com
+                      user_type: trainer
+                      profile_image: http://example.com/profile.jpg
+                      age: 20
+                      height_cm: 175
+                      weight_kg: 70
+                      body_fat_percentage: 15.5
+                      muscle_mass_kg: 35.2
+                      created_at: '2024-01-01T00:00:00Z'
+                  summary: 프로필 조회 성공
+          description: 프로필 조회 성공
+        '401':
+          description: 인증 필요
+    put:
+      operationId: members_profile_update
+      description: 현재 로그인한 사용자의 프로필 정보를 수정합니다.
+      summary: 프로필 수정
+      tags:
+      - 프로필
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile_image:
+                  type: string
+                  format: binary
+                  description: 프로필 이미지
+                age:
+                  type: integer
+                  description: 나이
+                height_cm:
+                  type: number
+                  description: 키 (cm)
+                weight_kg:
+                  type: number
+                  description: 몸무게 (kg)
+                body_fat_percentage:
+                  type: number
+                  description: 체지방량 (%)
+                muscle_mass_kg:
+                  type: number
+                  description: 골격근량 (kg)
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 프로필 수정 성공
+        '400':
+          description: 유효성 검사 실패
+        '401':
+          description: 인증 필요
+    patch:
+      operationId: members_profile_partial_update
+      description: 현재 로그인한 사용자의 프로필 정보를 수정합니다.
+      summary: 프로필 수정
+      tags:
+      - 프로필
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                profile_image:
+                  type: string
+                  format: binary
+                  description: 프로필 이미지
+                age:
+                  type: integer
+                  description: 나이
+                height_cm:
+                  type: number
+                  description: 키 (cm)
+                weight_kg:
+                  type: number
+                  description: 몸무게 (kg)
+                body_fat_percentage:
+                  type: number
+                  description: 체지방량 (%)
+                muscle_mass_kg:
+                  type: number
+                  description: 골격근량 (kg)
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 프로필 수정 성공
+        '400':
+          description: 유효성 검사 실패
+        '401':
+          description: 인증 필요
+  /api/members/profile/{user_id}/:
+    get:
+      operationId: members_profile_retrieve_2
+      description: 특정 사용자의 공개 프로필 정보를 조회합니다.
+      summary: 다른 사용자 프로필 조회
+      parameters:
+      - in: path
+        name: user_id
+        schema:
+          type: integer
+        required: true
+      tags:
+      - 프로필
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      responses:
+        '200':
+          description: 프로필 조회 성공
+        '404':
+          description: 사용자를 찾을 수 없음
+        '401':
+          description: 인증 필요
+  /auth/login/:
+    post:
+      operationId: user_login
+      description: 이메일과 비밀번호로 로그인하여 JWT 토큰을 발급받습니다.
+      summary: 로그인
+      tags:
+      - 인증
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/LoginRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      - {}
+      responses:
+        '200':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                로그인성공:
+                  value:
+                    success: true
+                    message: 로그인이 완료되었습니다.
+                    user:
+                      id: 1
+                      name: 홍길동
+                      email: hong@example.com
+                      user_type: trainer
+                    tokens:
+                      refresh: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                      access: eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9...
+                  summary: 로그인 성공
+          description: 로그인 성공
+        '400':
+          description: 로그인 실패
+  /auth/sign-up/:
+    post:
+      operationId: user_signup
+      description: 새로운 사용자를 등록합니다. trainer 또는 member로 구분하여 가입할 수 있습니다.
+      summary: 회원가입
+      tags:
+      - 인증
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/SignupRequest'
+        required: true
+      security:
+      - tokenAuth: []
+      - jwtAuth: []
+      - {}
+      responses:
+        '201':
+          content:
+            application/json:
+              schema:
+                type: object
+                additionalProperties: {}
+              examples:
+                회원가입성공:
+                  value:
+                    success: true
+                    message: 회원가입이 완료되었습니다.
+                    user:
+                      id: 1
+                      name: 홍길동
+                      email: hong@example.com
+                      user_type: trainer
+                      terms_agreed: 'True'
+                      privacy_agreed: 'True'
+                      marketing_agreed: 'True'
+                  summary: 회원가입 성공
+          description: 회원가입 성공
+        '400':
+          description: 유효성 검사 실패
+components:
+  schemas:
+    LoginRequest:
+      type: object
+      properties:
+        email:
+          type: string
+          format: email
+          minLength: 1
+          description: 가입 시 사용한 이메일 주소
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: 비밀번호
+      required:
+      - email
+      - password
+    SignupRequest:
+      type: object
+      properties:
+        name:
+          type: string
+          minLength: 1
+          description: 사용자 실명
+          maxLength: 100
+        email:
+          type: string
+          format: email
+          minLength: 1
+          description: 로그인에 사용할 이메일 주소
+        password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: 10자리 이상, 영문/숫자/특수문자 포함
+        confirm_password:
+          type: string
+          writeOnly: true
+          minLength: 1
+          description: 비밀번호 확인
+        user_type:
+          allOf:
+          - $ref: '#/components/schemas/UserTypeEnum'
+          description: |-
+            사용자 유형 (trainer 또는 member)
+
+            * `trainer` - Trainer
+            * `member` - Member
+        marketing_agreed:
+          type: boolean
+          default: false
+        privacy_agreed:
+          type: boolean
+        terms_agreed:
+          type: boolean
+      required:
+      - confirm_password
+      - email
+      - name
+      - password
+      - privacy_agreed
+      - terms_agreed
+      - user_type
+    UserTypeEnum:
+      enum:
+      - trainer
+      - member
+      type: string
+      description: |-
+        * `trainer` - Trainer
+        * `member` - Member
+  securitySchemes:
+    jwtAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+    tokenAuth:
+      type: apiKey
+      in: header
+      name: Authorization
+      description: Token-based authentication with required prefix "Token"
