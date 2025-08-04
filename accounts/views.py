@@ -59,7 +59,7 @@ def get_tokens_for_user(user):
 
 @api_view(['POST'])
 @permission_classes([AllowAny])
-def signup_api(request):
+def signup(request):
     # 회원가입 api
 
     serializer = SignupSerializer(data=request.data)

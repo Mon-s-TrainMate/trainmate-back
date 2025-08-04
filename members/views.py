@@ -582,9 +582,9 @@ def trainer_detail(request, trainer_id):
     responses={
         200: OpenApiResponse(description='회원 정보 조회 성공'),
         401: OpenApiResponse(description='인증 실패'),
-        403: OpenApiParameter(description='권한 없음'),
-        404: OpenApiParameter(description='회원을 찾을 수 없음'),
-        500: OpenApiParameter(description='서버 오류')
+        403: OpenApiResponse(description='권한 없음'),
+        404: OpenApiResponse(description='회원을 찾을 수 없음'),
+        500: OpenApiResponse(description='서버 오류')
     }
 )
 @api_view(['GET'])
