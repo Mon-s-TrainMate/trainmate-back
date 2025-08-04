@@ -35,7 +35,7 @@ def get_user_profile_data(user):
     try:
         if user.user_type == 'trainer':
             # 로그인 유저 타입이 트레이너일 때
-            trainer_profile = Trainer.objects.get(user=user)
+            trainer_profile = Trainer.objects.get(user_ptr_id=user.id)
             profile_data.update({
                 'profile_image': trainer_profile.profile_image.url if trainer_profile.profile_image else None,
                 'age': trainer_profile.age,
@@ -46,7 +46,7 @@ def get_user_profile_data(user):
             })
         elif user.user_type == 'member':
             # 로그인 유저 타입이 회원일 때
-            member_profile = Member.objects.get(user=user)
+            member_profile = Member.objects.get(user_ptr_id=user.id)
             profile_data.update({
                 'profile_image': member_profile.profile_image.url if member_profile.profile_image else None,
                 'age': member_profile.age,
@@ -64,49 +64,98 @@ def get_user_profile_data(user):
 
 
 
-# 내 프로필 조회
+# 내 프로필 조회/수정
 @extend_schema(
-    summary="내 프로필 조회",
-    description="현재 로그인한 사용자의 프로필 정보를 조회합니다.",
+    summary="내 프로필 조회/수정",
+    description="GET: 내 프로필 조회, PUT/PATCH: 내 프로필 수정",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "profile_image": {"type": "string", "format": "binary", "description": "프로필 이미지"},
+                "age": {"type": "integer", "description": "나이"},
+                "height_cm": {"type": "number", "description": "키 (cm)"},
+                "weight_kg": {"type": "number", "description": "몸무게 (kg)"},
+                "body_fat_percentage": {"type": "number", "description": "체지방량 (%)"},
+                "muscle_mass_kg": {"type": "number", "description": "골격근량 (kg)"},
+            }
+        }
+    },
     responses={
-        200: OpenApiResponse(
-            response=dict,
-            description="프로필 조회 성공",
-            examples=[
-                OpenApiExample(
-                    "프로필 조회 성공",
-                    value={
-                        "success": True,
-                        "user": {
-                            "id": 1,
-                            "name": "홍길동",
-                            "email": "hong@example.com",
-                            "user_type": "trainer",
-                            "profile_image": "http://example.com/profile.jpg",
-                            "age": 20,
-                            "height_cm": 175,
-                            "weight_kg": 70,
-                            "body_fat_percentage": 15.5,
-                            "muscle_mass_kg": 35.2,
-                            "created_at": "2024-01-01T00:00:00Z"
-                        }
-                    }
-                )
-            ]
-        ), 401: OpenApiResponse(description="인증 필요")
+        200: OpenApiResponse(description="성공"),
+        400: OpenApiResponse(description="유효성 검사 실패"),
+        401: OpenApiResponse(description="인증 필요")
     }, tags=["프로필"]
 )
-@api_view(['GET'])
+@api_view(['GET', 'PUT', 'PATCH'])
 @permission_classes([IsAuthenticated])
-def get_my_profile(request):
-    # 내 프로필 조회
-    user = request.user
-    profile_data = get_user_profile_data(user)
+def my_profile_view(request):
+    if request.method == 'GET':
+        # 프로필 조회 로직
+        user = request.user
+        profile_data = get_user_profile_data(user)
 
-    return Response({
-        'success': True,
-        'user': profile_data
-    }, status=status.HTTP_200_OK)
+        return Response({
+            'success': True,
+            'user': profile_data
+        }, status=status.HTTP_200_OK)
+    
+    elif request.method in ['PUT', 'PATCH']:
+        # 프로필 수정 로직
+        user = request.user
+        updatable_fields = ['age', 'height_cm', 'weight_kg', 'body_fat_percentage', 'muscle_mass_kg']
+
+        try:
+            if user.user_type == 'trainer':
+                try:
+                    trainer_profile = Trainer.objects.get(user_ptr_id=user.id)
+                except Trainer.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': '트레이너 프로필을 찾을 수 없습니다.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                for field in updatable_fields:
+                    if field in request.data:
+                        setattr(trainer_profile, field, request.data[field])
+                
+                if 'profile_image' in request.FILES:
+                    trainer_profile.profile_image = request.FILES['profile_image']
+                
+                trainer_profile.save()
+
+            elif user.user_type == 'member':
+                try:
+                    member_profile = Member.objects.get(user_ptr_id=user.id)
+                except Member.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': '회원 프로필을 찾을 수 없습니다.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+
+                for field in updatable_fields:
+                    if field in request.data:
+                        setattr(member_profile, field, request.data[field])
+
+                if 'profile_image' in request.FILES:
+                    member_profile.profile_image = request.FILES['profile_image']
+                
+                member_profile.save()
+            
+            updated_profile = get_user_profile_data(user)
+
+            return Response({
+                'success': True,
+                'message': '프로필이 수정되었습니다.',
+                'user': updated_profile
+            }, status=status.HTTP_200_OK)
+        
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': '프로필 수정에 실패했습니다.',
+                'error': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -134,137 +183,122 @@ def get_user_profile(request, user_id):
 
 
 
-# 프로필 수정
-@extend_schema(
-    summary="프로필 수정",
-    description="현재 로그인한 사용자의 프로필 정보를 수정합니다.",
-    request={
-        "application/json": {
-            "type": "object",
-            "properties": {
-                "profile_image": {"type": "string", "format": "binary", "description": "프로필 이미지"},
-                "age": {"type": "integer", "description": "나이"},
-                "height_cm": {"type": "number", "description": "키 (cm)"},
-                "weight_kg": {"type": "number", "description": "몸무게 (kg)"},
-                "body_fat_percentage": {"type": "number", "description": "체지방량 (%)"},
-                "muscle_mass_kg": {"type": "number", "description": "골격근량 (kg)"},
-            }
-        }
-    }, responses={
-        200: OpenApiResponse(description="프로필 수정 성공"),
-        400: OpenApiResponse(description="유효성 검사 실패"),
-        401: OpenApiResponse(description="인증 필요")
-    }, tags=["프로필"]
-)
-@api_view(['PUT', 'PATCH'])
-@permission_classes([IsAuthenticated])
-def update_my_profile(request):
-    # 프로필 수정
-    user = request.user
-
-    # 수정 가능 필드
-    updatable_fields = ['age', 'height_cm', 'weight_kg', 'body_fat_percentage', 'muscle_mass_kg']
-
-    try:
-        if user.user_type == 'trainer':
-            trainer_profile, created = Trainer.objects.get_or_create(user=user)
-
-            for field in updatable_fields:
-                if field in request.data:
-                    setattr(trainer_profile, field, request.data[field])
-            
-            # 프로필 이미지
-            if 'profile_image' in request.FILES:
-                trainer_profile.profile_image = request.FILES['profile_image']
-            
-            trainer_profile.save()
-
-        elif user.user_type == 'member':
-            member_profile, created = Member.objects.get_or_create(user=user)
-
-            for field in updatable_fields:
-                if field in request.data:
-                    setattr(member_profile, field, request.data[field])
-
-            # 프로필 이미지
-            if 'profile_image' in request.FILES:
-                member_profile.profile_image = request.FILES['profile_image']
-            
-            member_profile.save()
-        
-        updated_profile = get_user_profile_data(user)
-
-        return Response({
-            'success': True,
-            'message': '프로필이 수정되었습니다.',
-            'user': updated_profile
-        }, status=status.HTTP_200_OK)
-    
-    except Exception as e:
-        return Response({
-            'success': False,
-            'message': '프로필 수정에 실패했습니다.',
-            'error': str(e)
-        }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
 # 회원 목록 조회
 @extend_schema(
         operation_id='list_trainer_members',
         tags=['회원관리'],
         summary='트레이너의 회원 목록 조회',
-        description='트레이너의 회원 목록 조회',
+        description='트레이너의 회원 목록 조회. 회원이 로그인한 경우 빈 목록 반환',
         responses={
-            200: OpenApiResponse(description='성공'),
-            401: OpenApiResponse(description='인증 실패'),
-            403: OpenApiResponse(description='트레이너 권한 필요'),
-            404: OpenApiResponse(description='트레이너 정보 없음'),
-            500: OpenApiResponse(description='서버 오류')
-        }
+            200: OpenApiResponse(
+            description='성공',
+            examples=[
+                OpenApiExample(
+                    "트레이너의 회원 목록 조회 성공",
+                    value={
+                        "success": True,
+                        "data": {
+                            "trainer_profile": {
+                                "profile_image": "http://example.com/profile.jpg",
+                                "name": "김트레이너",
+                                "email": "trainer@example.com",
+                                "updated_at": "2024-01-01T00:00:00Z",
+                                "is_my_profile": True,
+                                "member_count": 3
+                            },
+                            "members": [
+                                {
+                                    "id": 1,
+                                    "profile_image": None,
+                                    "name": "김회원",
+                                    "email": "member@example.com",
+                                    "updated_at": "2024-01-01T00:00:00Z",
+                                    "is_my_profile": False,
+                                    "profile_completed": True
+                                }
+                            ],
+                            "total_count": 3,
+                            "user_type": "trainer"
+                        }
+                    }
+                ),
+                OpenApiExample(
+                    "회원이 로그인한 경우",
+                    value={
+                        "success": True,
+                        "data": {
+                            "trainer_profile": None,
+                            "members": [],
+                            "total_count": 0,
+                            "user_type": "member",
+                            "message": "회원은 트레이너 목록에 접근할 수 없습니다."
+                        }
+                    }
+                )
+            ]
+        ),
+        401: OpenApiResponse(description='인증 실패'),
+        404: OpenApiResponse(description='트레이너 정보 없음'),
+        500: OpenApiResponse(description='서버 오류')
+    }
 )
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def trainer_member_list(request):
     # 트레이너의 회원 목록 조회
     try:
-        # 현재 로그인한 사용자가 트레이너인지 확인
-        print(request.user.id)
-        # trainer = get_object_or_404(Trainer, user_ptr_id=request.user.id)
-        trainer = Trainer.objects.get(user_ptr_id=request.user.id)
-        print(trainer)
+        user_type = getattr(request.user, 'user_type', None)
 
-        print(f"trainer.profile_image: {trainer.profile_image}")
-        print(f"trainer.updated_at: {trainer.updated_at}")
+        if user_type == 'member':
+            return Response({
+                'success': True,
+                'data': {
+                    'trainer_profile': None,
+                    'members': [],
+                    'total_count': 0,
+                    'user_type': 'member',
+                    'message': '회원은 트레이너 목록에 접근할 수 없습니다.'
+                }
+            }, status=status.HTTP_200_OK)
+        # 로그인 유저가 트레이너인지 확인
+        try:
+            trainer = Trainer.objects.get(user_ptr_id=request.user.id)
+        except Trainer.DoesNotExist:
+            return Response({
+                'error': 'TRAINER_NOT_FOUND',
+                'message': '트레이너 정보를 찾을 수 없습니다.',
+                'details': {
+                    'user_id': request.user.id,
+                    'user_type': user_type
+                }
+            }, status=status.HTTP_404_NOT_FOUND)
 
         # 회원 수 계산
         try:
             member_count = trainer.get_member_count()
-            print(f"member_count: {member_count}")
         except Exception as e:
-            print(f"get_member_count() 오류: {e}")
+            print(f"get_member_count() 오류 : {e}")
             member_count = 0
 
-        # 내 프로필 정보
+        # 트레이너 프로필 정보
         trainer_data = {
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
             'name': getattr(trainer, 'name', 'Unknown'),
             'email': getattr(trainer, 'email', 'unknown@example.com'),
-            'updated_at': trainer.updated_at.isoformat() if trainer.updated_at else None,
+            'updated_at': trainer.updated_at.isoformat() if hasattr(trainer, 'updated_at') and trainer.updated_at else None,
             'is_my_profile': True,
             'member_count': member_count
         }
-        print(f"trainer_data: {trainer_data}")
 
-        # 담당 회원 목록(활성 회원만)
-        print("=== 회원 목록 조회 ===")
+        # 담당 회원 목록 조회(활성 회원만)
         try:
             members = trainer.get_active_members()
-            print(f"회원 목록 조회 성공: {members.count()}명")
+            print(f"활성 회원 수: {members.count()}명")
         except Exception as e:
             print(f"get_active_members 오류: {e}")
-            members = []
+            members = Member.objects.none()
 
+        # 회원 데이터 구성
         members_data = []
         for member in members:
             try:
@@ -278,30 +312,34 @@ def trainer_member_list(request):
                     'profile_completed': getattr(member, 'profile_completed', False)
                 }
                 members_data.append(member_info)
-                print(f"회원 데이터 추가: {member_info['name']}")
             except Exception as e:
-                print(f"회원 데이터 구성 중 오류: {e}")
+                print(f"회원 데이터 구성 중 오류 (ID: {member.id}): {e}")
                 continue
+        
+        # 트레이너에게 소속된 회원이 없을 경우 메시지 추가
+        response_data = {
+            'trainer_profile': trainer_data,
+            'members': members_data,
+            'total_count': len(members_data),
+            'user_type': 'trainer'
+        }
+
+        # 소속 회원이 없는 경우 안내 메시지 추가
+        if len(members_data) == 0:
+            response_data['message'] = '현재 담당 회원이 없습니다. 새로운 회원을 등록해보세요.'
 
         return Response({
             'success': True,
-            'data': {
-                'trainer_profile': trainer_data,
-                'members': members_data,
-                'total_count': len(members_data)
-            }
+            'data': response_data
         }, status=status.HTTP_200_OK)
     
-    except Trainer.DoesNotExist:
-        return Response({
-            'error': 'TRAINER_NOT_FOUND',
-            'message': '트레이너 정보를 찾을 수 없습니다.'
-        }, status=status.HTTP_404_NOT_FOUND)
-    
     except Exception as e:
+        print(f"trainer_member_list 예외 발생: {type(e).__name__}: {e}")
+        import traceback
+        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
-            'message': '서버 오류가 발생했습니다'
+            'message': '서버 오류가 발생했습니다.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
@@ -336,7 +374,7 @@ def register_member_to_trainer(request):
     # 트레이너의 회원 등록 - 기존 Member에 trainer_id 업데이트
     try:
         # 현재 사용자가 트레이너인지 확인
-        trainer = get_object_or_404(Trainer, user=request.user)
+        trainer = get_object_or_404(Trainer, user_ptr_id=request.user.id)
 
         user_id = request.data.get('user_id')
         if not user_id:
@@ -356,7 +394,7 @@ def register_member_to_trainer(request):
         
         # Member 프로필 확인
         try:
-            member = Member.objects.get(user=target_user)
+            member = Member.objects.get(user_ptr_id=target_user.id)
         except Member.DoesNotExist:
             return Response({
                 'error': 'MEMBER_PROFILE_NOT_FOUND',
@@ -370,7 +408,7 @@ def register_member_to_trainer(request):
                 'message': '이미 다른 트레이너의 회원입니다.',
                 'details': {
                     'member_name': target_user.name,
-                    'current_trainer': member.trainer.user.name
+                    'current_trainer': member.assigned_trainer.name
                 }
             }, status=status.HTTP_409_CONFLICT)
         
@@ -384,9 +422,9 @@ def register_member_to_trainer(request):
             'data': {
                 'member': {
                     'id': member.id,
-                    'name': member.user.name,
-                    'email': member.user.email,
-                    'trainer_name': trainer.user.name,
+                    'name': target_user.name,
+                    'email': target_user.email,
+                    'trainer_name': trainer.name,
                     'assigned_at': member.updated_at
                 }
             }
@@ -428,7 +466,7 @@ def search_users_for_registration(request):
     # 트레이너가 등록할 회원 검색
     try:
         # 현재 사용자가 트레이너인지 확인
-        trainer = get_object_or_404(Trainer, user=request.user)
+        trainer = get_object_or_404(Trainer, user_ptr_id=request.user.id)
 
         query = request.GET.get('query', '').strip()
         if not query:
@@ -439,8 +477,8 @@ def search_users_for_registration(request):
         
         # 트레이너가 미배정된 회원들만 검색
         unassigned_member_user_ids = Member.objects.filter(
-            trainer=None # 트레이너가 배정되지 않은 회원들
-        ).values_list('user_id', flat=True)
+            assigned_trainer=None # 트레이너가 배정되지 않은 회원들
+        ).values_list('user_ptr_id', flat=True)
 
         # 검색 실행
         users = User.objects.filter(
@@ -485,7 +523,7 @@ def search_users_for_registration(request):
         return Response({
             'error': 'TRAINER_NOT_FOUND',
             'message': '트레이너 정보를 찾을 수 없습니다.'
-        }, status=status.HTTP_200_OK)
+        }, status=status.HTTP_404_NOT_FOUND)
     
     except Exception as e:
         return Response({
@@ -534,7 +572,7 @@ def trainer_detail(request, trainer_id):
         trainer_data = {
             'id': trainer.id,
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
-            'name': getattr(trainer, 'username', 'Unknown'),
+            'name': getattr(trainer, 'name', 'Unknown'),
             'email': getattr(trainer, 'email', 'unknown@example.com'),
             'age': getattr(trainer, 'age', None),
             'height_cm': float(trainer.height_cm) if trainer.height_cm else None,
@@ -568,7 +606,7 @@ def trainer_detail(request, trainer_id):
 
 
 @extend_schema(
-    operation_id='get_memebr_detail',
+    operation_id='get_member_detail',
     tags=['프로필'],
     summary='회원 상세 정보 조회',
     description='특정 회원의 상세 정보를 조회합니다.',
@@ -599,16 +637,17 @@ def member_detail(request, member_id):
             member = Member.objects.get(id=member_id)
         except Member.DoesNotExist:
             return Response({
-                'error': 'MEMBER_NOT_FOUND',
-                'message': '회원을 찾을 수 없습니다.'
+                'detail': 'User not found',
+                'code': 'user_not_found'
             }, status=status.HTTP_404_NOT_FOUND)
         
         # 회원 상세 정보 구성
-        member_data = {
+        user_data = {
             'id': member.id,
             'profile_image': member.profile_image.url if member.profile_image else None,
             'name': getattr(member, 'name', 'Unknown'),
             'email': getattr(member, 'email', 'unknown@example.com'),
+            'age': getattr(member, 'age', None),
             'height_cm': float(member.height_cm) if member.height_cm else None,
             'weight_kg': float(member.weight_kg) if member.weight_kg else None,
             'body_fat_percentage': float(member.body_fat_percentage) if member.body_fat_percentage else None,
@@ -622,27 +661,25 @@ def member_detail(request, member_id):
 
         # 트레이너 정보 추가
         if member.assigned_trainer:
-            member_data['trainer_info'] = {
+            user_data['trainer_info'] = {
                 'id': member.assigned_trainer.id,
                 'name': getattr(member.assigned_trainer, 'name', 'Unknown'),
                 'email': getattr(member.assigned_trainer, 'email', 'unknown@example.com'),
                 'profile_image': member.assigned_trainer.profile_image.url if member.assigned_trainer.profile_image else None
             }
         else:
-            member_data['trainer_info'] = None
+            user_data['trainer_info'] = None
         
-        # 현재 사용자 정보
-        viewer_info = {
-            'id': request.user.id,
-            'user_type': request.user.user_type,
-            'name': request.user.name
-        }
-
         return Response({
             'success': True,
+            'user': user_data,
             'data': {
-                'member': member_data,
-                'viewer_info': viewer_info
+                'member': user_data,
+                'viewer_info': {
+                    'id': request.user.id,
+                    'user_type': getattr(request.user, 'user_type', 'unknown'),
+                    'name': getattr(request.user, 'name', 'Unknown')
+                }
             }
         }, status=status.HTTP_200_OK)
     

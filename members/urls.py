@@ -6,8 +6,7 @@ from . import views
 urlpatterns = [
     # 내 프로필 조회/수정
     # /api/members/profile
-    path('profile/', views.get_my_profile, name='my_profile'),
-    path('profile/', views.update_my_profile, name='update_profile'),
+    path('profile/', views.my_profile_view, name='my_profile'),
     
     # 다른 사용자 프로필 조회
     # /api/members/profile/123
@@ -17,5 +16,5 @@ urlpatterns = [
     # /api/members
     path('', views.trainer_member_list, name='trainer_member_list'),
     # /api/members/123/
-    path('<int:member_id>/', views.member_detail, name='member_detail')
+    path('<int:member_id>/', views.member_detail, name='member_detail'),
 ]
