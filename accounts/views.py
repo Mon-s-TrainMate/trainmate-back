@@ -162,3 +162,14 @@ def login_api(request):
         'message': '로그인에 실패했습니다.',
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
+
+
+
+@api_view(['POST'])
+@permission_classes([AllowAny])
+def test_signup(request):
+    return Response({
+        'success': True,
+        'message': 'Test endpoint working',
+        'data': request.data
+    })
