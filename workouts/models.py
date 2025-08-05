@@ -81,13 +81,6 @@ class Exercise(models.Model):
         verbose_name="운동 도구"
     )
 
-    input_type = models.CharField(
-        max_length=50,
-        choices=INPUT_TYPE_CHOICES,
-        default='Drop down type 05',
-        verbose_name="입력 타입"
-    )
-
     measurement_unit = models.CharField(
         max_length=20,
         choices=MEASUREMENT_UNIT_CHOICES,
