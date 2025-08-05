@@ -672,14 +672,8 @@ def member_detail(request, member_id):
         
         return Response({
             'success': True,
-            'user': user_data,
             'data': {
                 'member': user_data,
-                'viewer_info': {
-                    'id': request.user.id,
-                    'user_type': getattr(request.user, 'user_type', 'unknown'),
-                    'name': getattr(request.user, 'name', 'Unknown')
-                }
             }
         }, status=status.HTTP_200_OK)
     
