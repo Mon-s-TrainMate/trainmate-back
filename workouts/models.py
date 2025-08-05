@@ -7,28 +7,24 @@ from decimal import Decimal
 
 
 
-class ExerciseCategory(models.Model):
-    # 운동 부위 카테고리(가슴, 등, 어깨, 팔, 하체, 복부 등)
-    name = models.CharField(
-        max_length=50,
-        unique=True,
-        verbose_name="카테고리명"
-    )
-
-    created_at = models.DateTimeField(
-        auto_now_add=True,
-        verbose_name="생성일시"
-    )
-
-    class Meta:
-        verbose_name = "운동 카테고리"
-        verbose_name_plural = "운동 카테고리들"
-        ordering = ['name']
-
-    def __str__(self):
-        return self.name
-    
 class Exercise(models.Model):
+
+    # 운동 부위 선택지(가슴, 등, 어깨, 이두 등)
+    BODY_PART_CHOICES = [
+        ('가슴', '가슴'),
+        ('등', '등'),
+        ('어깨', '어깨'),
+        ('이두', '이두'),
+        ('삼두', '삼두'),
+        ('복근', '복근'),
+        ('대퇴사두', '대퇴사두'),
+        ('햄스트링', '햄스트링'),
+        ('둔근', '둔근'),
+        ('종아리', '종아리'),
+        ('전완', '전완'),
+        ('승모', '승모'),
+    ]
+
     # 개별 운동 정보(벤치프레스, 랫풀다운, 스쿼트 등)
     EQUIPMENT_CHOICES = [
         ('맨몸', '맨몸'),
@@ -42,24 +38,68 @@ class Exercise(models.Model):
         ('유산소', '유산소')
     ]
 
-    category = models.ForeignKey(
-        ExerciseCategory,
-        on_delete=models.CASCADE,
-        related_name='exercise',
-        verbose_name="운동 카테고리"
-    )
+    # 입력 타입 선택지 (JSON의 input_type)
+    INPUT_TYPE_CHOICES = [
+        ('Drop down type 01', 'Drop down type 01'),
+        ('Drop down type 02', 'Drop down type 02'),
+        ('Drop down type 03', 'Drop down type 03'),
+        ('Drop down type 04', 'Drop down type 04'),
+        ('Drop down type 05', 'Drop down type 05'),
+    ]
 
-    name = models.CharField(
+    # 측정 단위 선택지 (JSON의 measurement_unit)
+    MEASUREMENT_UNIT_CHOICES = [
+        ('회', '회'),
+        ('분', '분'),
+        ('초', '초'),
+        ('km', 'km'),
+        ('m', 'm'),
+        ('세트', '세트'),
+    ]
+
+    # 중량 단위 선택지 (JSON의 weight_unit)
+    WEIGHT_UNIT_CHOICES = [
+        ('none', '없음'),
+        ('kg', 'kg'),
+        ('lb', 'lb'),
+    ]
+
+    exercise_name = models.CharField(
         max_length=100,
         verbose_name="운동명"
+    )
+
+    body_part = models.CharField(
+        max_length=50,
+        choices=BODY_PART_CHOICES,
+        verbose_name="운동 부위"
     )
 
     equipment = models.CharField(
         max_length=50,
         choices=EQUIPMENT_CHOICES,
-        blank=True,
-        null=True,
         verbose_name="운동 도구"
+    )
+
+    input_type = models.CharField(
+        max_length=50,
+        choices=INPUT_TYPE_CHOICES,
+        default='Drop down type 05',
+        verbose_name="입력 타입"
+    )
+
+    measurement_unit = models.CharField(
+        max_length=20,
+        choices=MEASUREMENT_UNIT_CHOICES,
+        default='회',
+        verbose_name="측정 단위"
+    )
+
+    weight_unit = models.CharField(
+        max_length=10,
+        choices=WEIGHT_UNIT_CHOICES,
+        default='none',
+        verbose_name="중량 단위"
     )
 
     met_value = models.DecimalField(
@@ -84,14 +124,14 @@ class Exercise(models.Model):
     class Meta:
         verbose_name = "운동"
         verbose_name_plural = "운동들"
-        ordering = ['category', 'name']
+        ordering = ['body_part', 'exercise_name']
         indexes = [
-            models.Index(fields=['category', 'is_active']),
+            models.Index(fields=['body_part', 'is_active']),
             models.Index(fields=['equipment']),
         ]
 
     def __str__(self):
-        return f"{self.category.name} - {self.name}"
+        return f"{self.body_part} - {self.exercise_name}"
 
 
 
@@ -237,7 +277,7 @@ class WorkoutExercise(models.Model):
         ]
 
     def __str__(self):
-        return f"{self.daily_workout} - {self.order_number:02d}. {self.exercise.name}"
+        return f"{self.daily_workout} - {self.order_number:02d}. {self.exercise.exercise_name}"
     
     def calculate_calories(self, member_weight_kg=70):
         # 칼로리 계산 메서드 (MET 공식 사용)
