@@ -1,0 +1,653 @@
+,[final-project] 운동 카테고리,,,,,,
+,,,,,,1씩 증가,0.5씩 증량
+,,운동 부위,도구,운동명,input type,측정 단위(unit),중량 단위(unit)
+,1,가슴,맨몸,디클라인 푸시 업,Drop down type 05,회,none
+,2,가슴,맨몸,다이아몬드 푸시 업,Drop down type 05,회,none
+,3,가슴,맨몸,힌두 푸시 업,Drop down type 05,회,none
+,4,가슴,맨몸,인클라인 푸시 업,Drop down type 05,회,none
+,5,가슴,맨몸,니 푸시 업,Drop down type 05,회,none
+,6,가슴,맨몸,파이크 푸시 업,Drop down type 05,회,none
+,7,가슴,맨몸,푸시 업,Drop down type 05,회,none
+,8,가슴,맨몸,로테이션 푸시 업,Drop down type 05,회,none
+,9,가슴,맨몸,중량 푸시 업,Drop down type 01,회,kg
+,10,가슴,맨몸,아처 푸시 업,Drop down type 05,회,none
+,11,가슴,맨몸,와이드 푸시 업,Drop down type 05,회,none
+,12,가슴,맨몸,무릎 대고 푸시 업,Drop down type 05,회,none
+,13,가슴,맨몸,보수 푸시 업,Drop down type 05,회,none
+,14,가슴,맨몸,핸드 릴리즈 푸시 업,Drop down type 05,회,none
+,15,가슴,맨몸,스미스 바 인클라인 푸시 업,Drop down type 05,회,none
+,16,가슴,맨몸,짐볼 덤벨 인클라인 플라이,Drop down type 05,회,none
+,17,가슴,맨몸,메디신볼 클로즈 그립 푸시 업,Drop down type 05,회,none
+,18,가슴,맨몸,비대칭 푸시 업,Drop down type 05,회,none
+,19,가슴,덤벨,덤벨 디클라인 벤치 프레스,Drop down type 01,회,kg
+,20,가슴,덤벨,덤벨 플랫 벤치 프레스,Drop down type 01,회,kg
+,21,가슴,덤벨,덤벨 인클라인 벤치 프레스,Drop down type 01,회,kg
+,22,가슴,덤벨,덤벨 디클라인 플라이,Drop down type 01,회,kg
+,23,가슴,덤벨,덤벨 플라이,Drop down type 01,회,kg
+,24,가슴,덤벨,덤벨 인클라인 플라이,Drop down type 01,회,kg
+,25,가슴,덤벨,라잉 덤벨 풀오버,Drop down type 01,회,kg
+,26,가슴,덤벨,덤벨 스퀴즈 벤치 프레스,Drop down type 01,회,kg
+,27,가슴,덤벨,다이아몬드 프레스,Drop down type 01,회,kg
+,28,가슴,덤벨,덤벨 플로어 해머 프레스,Drop down type 01,회,kg
+,29,가슴,덤벨,덤벨 플로어 체스트 프레스,Drop down type 01,회,kg
+,30,가슴,덤벨,덤벨 데빌 프레스,Drop down type 01,회,kg
+,31,가슴,덤벨,짐볼 풀오버,Drop down type 01,회,kg
+,32,가슴,바벨,바벨 디클라인 벤치 프레스,Drop down type 01,회,kg
+,33,가슴,바벨,바벨 플랫 벤치 프레스,Drop down type 01,회,kg
+,34,가슴,바벨,바벨 인클라인 벤치 프레스,Drop down type 01,회,kg
+,35,가슴,바벨,와이드 그립 벤치 프레스,Drop down type 01,회,kg
+,36,가슴,바벨,바벨 리버스 그립 벤치 프레스,Drop down type 01,회,kg
+,37,가슴,바벨,정지 벤치 프레스,Drop down type 01,회,kg
+,38,가슴,바벨,라잉 바벨 풀오버,Drop down type 01,회,kg
+,39,가슴,바벨,바벨 핀 벤치 프레스,Drop down type 01,회,kg
+,40,가슴,스미스 머신,스미스 머신 벤치 프레스,Drop down type 01,회,kg
+,41,가슴,스미스 머신,스미스 머신 디클라인 벤치 프레스,Drop down type 01,회,kg
+,42,가슴,스미스 머신,스미스 머신 인클라인 벤치 프레스,Drop down type 01,회,kg
+,43,가슴,스미스 머신,스미스 머신 클로즈 그립 벤치 프레스,Drop down type 01,회,kg
+,44,가슴,머신,머신 디클라인 벤ㄴ치 프레스,Drop down type 01,회,kg
+,45,가슴,머신,머신 인클라인 벤치 프레스,Drop down type 01,회,kg
+,46,가슴,머신,머신 체스트 프레스,Drop down type 01,회,kg
+,47,가슴,머신,머신 플라이,Drop down type 01,회,kg
+,48,가슴,머신,팩 덱 플라이,Drop down type 01,회,kg
+,49,가슴,머신,디클라인 체스트 프레스,Drop down type 01,회,kg
+,50,가슴,머신,인클라인 체스트 프레스,Drop down type 01,회,kg
+,51,가슴,머신,인클라인 플라이,Drop down type 01,회,kg
+,52,가슴,머신,케이블 로우 플라이,Drop down type 01,회,kg
+,53,가슴,케이블,케이블 체스트 프레스,Drop down type 01,회,kg
+,54,가슴,케이블,케이블 인클라인 체스트 프레스,Drop down type 01,회,kg
+,55,가슴,케이블,벤치 케이블 플라이,Drop down type 01,회,kg
+,56,가슴,케이블,케이블 크로스 오버 플라이,Drop down type 01,회,kg
+,57,가슴,케이블,인클라인 벤치 케이블 플라이,Drop down type 01,회,kg
+,58,가슴,케이블,케이블 인클라인 벤치 프레스,Drop down type 01,회,kg
+,59,가슴,케이블,케이블 벤치 프레스,Drop down type 01,회,kg
+,60,가슴,케이블,케이블 크로스오버 로우 플라이,Drop down type 01,회,kg
+,61,가슴,케이블,케이블 크로스오버 하이 플라이,Drop down type 01,회,kg
+,62,가슴,케이블,케이블 디클라인 벤치 프레스,Drop down type 01,회,kg
+,63,가슴,밴드,밴드 체스트 프레스,Drop down type 01,회,kg
+,64,가슴,스트레칭,가슴 스트레칭,Drop down type 05,회,none
+,65,가슴,스트레칭,어깨 폼룰러,Drop down type 06,none,none
+,66,가슴,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,67,등,맨몸,백 인스텐션,Drop down type 01,회,kg
+,68,등,맨몸,슈퍼맨,Drop down type 05,회,none
+,69,등,맨몸,라잉 백 익스텐션,Drop down type 05,회,none
+,70,등,맨몸,친 업,Drop down type 05,회,none
+,71,등,맨몸,중량 친 업,Drop down type 01,회,kg
+,72,등,맨몸,버터플라이 풀 업,Drop down type 03,회,km
+,73,등,맨몸,링 머슬 업,Drop down type 06,none,none
+,74,등,맨몸,풀 업,Drop down type 05,회,none
+,75,등,맨몸,중량 풀 업,Drop down type 01,회,kg
+,76,등,맨몸,인버티드 로우,Drop down type 05,회,none
+,77,등,맨몸,링 머슬업,Drop down type 05,회,none
+,78,등,맨몸,링 하이 로우,Drop down type 05,회,none
+,79,등,맨몸,링 이버티드 로우,Drop down type 05,회,none
+,80,등,맨몸,아처 풀 업,Drop down type 05,회,none
+,81,등,맨몸,머슬업,Drop down type 05,회,none
+,82,등,맨몸,링 풀 업,Drop down type 05,회,none
+,83,등,맨몸,점프 풀 업,Drop down type 05,회,none
+,84,등,맨몸,해머 그립 풀 업,Drop down type 05,회,none
+,85,등,맨몸,리어 풀 업,Drop down type 05,회,none
+,86,등,맨몸,리버스 하이퍼 익스텐션,Drop down type 05,회,none
+,87,등,맨몸,데드 행 스트레치,Drop down type 06,none,none
+,88,등,맨몸,짐볼 백 익스텐션,Drop down type 05,회,none
+,89,등,맨몸,네거티브 풀업,Drop down type 05,회,none
+,90,등,맨몸,엘싯 풀업,Drop down type 05,회,none
+,91,등,맨몸,척추 스트레칭,Drop down type 06,none,none
+,92,등,맨몸,척추 스트레칭,Drop down type 06,none,none
+,93,등,덤벨,덤벨 인클라인 로우,Drop down type 01,회,kg
+,94,등,덤벨,덤벨 로우,Drop down type 01,회,kg
+,95,등,덤벨,벤트 오버 덤벨 로우,Drop down type 01,회,kg
+,96,등,덤벨,레네게이드 로우,Drop down type 01,회,kg
+,97,등,덤벨,원 암 덤벨 로우,Drop down type 01,회,kg
+,98,등,덤벨,덤벨 리어 델트 로우,Drop down type 01,회,kg
+,99,등,덤벨,덤벨 언더핸드 로우,Drop down type 01,회,kg
+,100,등,바벨,바벨 로우,Drop down type 01,회,kg
+,101,등,바벨,벤트 오버 바벨 로우,Drop down type 01,회,kg
+,102,등,바벨,펜들레이 로우,Drop down type 01,회,kg
+,103,등,바벨,티바 로우,Drop down type 01,회,kg
+,104,등,바벨,바벨 언더핸드 벤트 오버 로우,Drop down type 01,회,kg
+,105,등,바벨,바벨 리어 델트 로우,Drop down type 01,회,kg
+,106,등,바벨,바벨 인클라인 로우,Drop down type 01,회,kg
+,107,등,스미스 머신,스미스 머신 바벨 로우,Drop down type 01,회,kg
+,108,등,스미스 머신,스미스 머신 벤트 오버 로우,Drop down type 01,회,kg
+,109,등,스미스 머신,원 암 머신 아이소 래터럴 로우,Drop down type 01,회,kg
+,110,등,스미스 머신,스미스 머신 리어 델트 로우,Drop down type 01,회,kg
+,111,등,머신,머신 백 익스텐션,Drop down type 01,회,kg
+,112,등,머신,어시스티드 머신 친 업,Drop down type 02,회,kg(보조)
+,113,등,머신,머신 랫 풀 다운,Drop down type 01,회,kg
+,114,등,머신,어시스티드 머신 풀 업,Drop down type 02,회,kg(보조)
+,115,등,머신,머신 시티드 로우,Drop down type 01,회,kg
+,116,등,머신,머신 티 바 로우,Drop down type 01,회,kg
+,117,등,머신,머신 하이 로우,Drop down type 01,회,kg
+,118,등,머신,머신 로우 로우,Drop down type 01,회,kg
+,119,등,머신,프론트 로우,Drop down type 01,회,kg
+,120,등,머신,리버스 그립 래터럴 풀 다운,Drop down type 01,회,kg
+,121,등,머신,레버 벤트 오버 로우,Drop down type 01,회,kg
+,122,등,머신,와이드 그립 랫 풀 다운,Drop down type 01,회,kg
+,123,등,머신,머신 리버스 그립 랫 풀 다운,Drop down type 01,회,kg
+,124,등,머신,머신 리버스 그립 랫 풀 다운,Drop down type 01,회,kg
+,125,등,머신,머신 와이드 풀 다운,Drop down type 01,회,kg
+,126,등,머신,래버 머신 풀 오버,Drop down type 01,회,kg
+,127,등,머신,머신 데터럴 로우,Drop down type 01,회,kg
+,128,등,머신,언더랜드 랫 풀 다운,Drop down type 01,회,kg
+,129,등,머신,머신 리버스 그립 하이 로우,Drop down type 01,회,kg
+,130,등,머신,맥 그립 랫 풀 다운,Drop down type 01,회,kg
+,131,등,머신,머신 라잉 티 바 로우,Drop down type 01,회,kg
+,132,등,머신,래버 원 암 레터럴 하이 로우,Drop down type 01,회,kg
+,133,등,머신,레버 싱글 암 리버스 크립 하이 로우,Drop down type 01,회,kg
+,134,등,케이블,비하인드 넥 랫 풀 다운,Drop down type 01,회,kg
+,135,등,케이블,케이블 스트레이트 암 풀 다운,Drop down type 01,회,kg
+,136,등,케이블,랫 풀 다운,Drop down type 01,회,kg
+,137,등,케이블,원 암 랫 풀 다운,Drop down type 01,회,kg
+,138,등,케이블,케이블 시티드 로우,Drop down type 01,회,kg
+,139,등,케이블,V-bar 랫 풀 다운,Drop down type 01,회,kg
+,140,등,케이블,클로즈 그립 랫 풀 다운,Drop down type 01,회,kg
+,141,등,케이블,케이블 리어 풀 다운,Drop down type 01,회,kg
+,142,등,케이블,케이블 시티드 하이 로우,Drop down type 01,회,kg
+,143,등,케이블,원 암 케이블 벤트 오버 로우,Drop down type 01,회,kg
+,144,등,케이블,원 암 케이블 시트드 로우,Drop down type 01,회,kg
+,145,등,케이블,케이블 벤트 오버 리버스 그립 로우,Drop down type 01,회,kg
+,146,등,케이블,케이블 벤트 오버 로우,Drop down type 01,회,kg
+,147,등,케이블,케이블 시티드 언더핸드 로우,Drop down type 01,회,kg
+,148,등,케이블,케이블 시티드 와이드 그립 로우,Drop down type 01,회,kg
+,149,등,케이블,케이블 와이드 풀 다운,Drop down type 01,회,kg
+,150,등,케이블,케이블 리버스 그립 풀 다운,Drop down type 01,회,kg
+,151,등,케이블,케이블 스트레이트 원 암 풀 다운,Drop down type 01,회,kg
+,152,등,밴드,밴드 친 업,Drop down type 05,회,none
+,153,등,밴드,밴드 풀 업,Drop down type 05,회,none
+,154,등,밴드,밴드 벤트 오버 로우,Drop down type 01,회,kg
+,155,등,밴드,븐드 시티드 로우,Drop down type 05,회,none
+,156,등,밴드,밴드 리어 델트 로우,Drop down type 05,회,none
+,157,등,스트레칭,가슴 펴기 스트레칭,Drop down type 05,회,none
+,158,등,스트레칭,등 스트레칭,Drop down type 05,회,none
+,159,등,스트레칭,광배근 폼룰러,Drop down type 06,none,none
+,160,등,스트레칭,등 폼룰러,Drop down type 06,none,none
+,161,등,유산소,수영,Drop down type 04,none,km
+,162,승모,맨몸,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,163,승모,덤벨,덤벨 업라이트 로우,Drop down type 06,none,none
+,164,승모,덤벨,덤벨 슈러그,Drop down type 01,회,kg
+,165,승모,바벨,바벨 슈러그,Drop down type 01,회,kg
+,166,승모,바벨,베벨 비하인드 백 슈러그,Drop down type 01,회,kg
+,167,승모,바벨,바벨 오버헤드 슈러그,Drop down type 01,회,kg
+,168,승모,스미스 머신,스미스 머신 비하인드 백 슈러그,Drop down type 01,회,kg
+,169,승모,스미스 머신,스미스 머신 슈러그,Drop down type 01,회,kg
+,170,승모,스미스 머신,스미스 머신 업라이트 로우,Drop down type 01,회,kg
+,171,승모,머신,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,172,승모,케이블,케이블 슈러그,Drop down type 01,회,kg
+,173,승모,밴드,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,174,승모,스트레칭,필라테스 하이퍼 익스텐션,Drop down type 05,회,none
+,175,승모,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,176,어깨,맨몸,플란체,Drop down type 06,none,none
+,177,어깨,맨몸,개구리 플란체,Drop down type 05,회,none
+,178,어깨,맨몸,복싱,Drop down type 05,회,none
+,179,어깨,맨몸,물구나무 서서 걷기,Drop down type 05,회,none
+,180,어깨,맨몸,물구나무 서기,Drop down type 06,none,none
+,181,어깨,맨몸,물구나무 푸시 업,Drop down type 05,회,none
+,182,어깨,맨몸,플란체 푸시 업,Drop down type 05,회,none
+,183,어깨,맨몸,백 레버,Drop down type 05,회,none
+,184,어깨,맨몸,어깨 및 광배 스트레칭,Drop down type 06,none,none
+,185,어깨,맨몸,플랭크 숄더탭,Drop down type 05,회,none
+,186,어깨,맨몸,사이드 스텝 플라이,Drop down type 05,회,none
+,187,어깨,맨몸,회전근 스트레칭,Drop down type 05,회,none
+,188,어깨,맨몸,스탠딩 수영,Drop down type 05,회,none
+,189,어깨,덤벨,덤벨 리버스 플라이,Drop down type 01,회,kg
+,190,어깨,덤벨,덤벨 백 플라이,Drop down type 01,회,kg
+,191,어깨,덤벨,덤벨 프론트 레이즈,Drop down type 01,회,kg
+,192,어깨,덤벨,덤벨 레터럴 레이즈,Drop down type 01,회,kg
+,193,어깨,덤벨,사이드 레터럴 레이즈,Drop down type 01,회,kg
+,194,어깨,덤벨,벤트 오버 레터럴 레이즈,Drop down type 01,회,kg
+,195,어깨,덤벨,덤벨 리어 델트 레이즈,Drop down type 01,회,kg
+,196,어깨,덤벨,아놀드 덤벨 프레스,Drop down type 01,회,kg
+,197,어깨,덤벨,원 암 덤벨 숄더 프레스,Drop down type 01,회,kg
+,198,어깨,덤벨,시티드 덤벨 숄더 프레스,Drop down type 01,회,kg
+,199,어깨,덤벨,스탠딩 아놀드 프레스,Drop down type 01,회,kg
+,200,어깨,덤벨,덤벨 인클라인 와이 레이즈,Drop down type 01,회,kg
+,201,어깨,덤벨,스탠딩 아놀드 프레스,Drop down type 01,회,kg
+,202,어깨,덤벨,덤벨 인클라인 와이 레이즈,Drop down type 01,회,kg
+,203,어깨,덤벨,덤벨 시티드 사이드 레터럴 레이즈,Drop down type 01,회,kg
+,204,어깨,덤벨,원 암 덤벨 사이드 레터럴 레이즈,Drop down type 01,회,kg
+,205,어깨,덤벨,덤벨 라잉 리어 레터럴 레이즈,Drop down type 01,회,kg
+,206,어깨,덤벨,원 암 덤벨 라잉 리어 레터럴 레이즈,Drop down type 01,회,kg
+,207,어깨,덤벨,덤벨 익스터널 로테이션,Drop down type 01,회,kg
+,208,어깨,덤벨,덤벨 인클라인 T-레이즈,Drop down type 01,회,kg
+,209,어깨,덤벨,덤벨 인클라인 숄더 프레스,Drop down type 01,회,kg
+,210,어깨,덤벨,덤벨 스탠딩 힘 허거,Drop down type 01,회,kg
+,211,어깨,덤벨,덤벨 벤트 오버 리버스 레이즈,Drop down type 01,회,kg
+,212,어깨,덤벨,덤벨 스탠딩 얼터네이트 레이즈,Drop down type 01,회,kg
+,213,어깨,덤벨,패러럴 그립 덤벨 시티드 숄더 프레스,Drop down type 01,회,kg
+,214,어깨,바벨,클린 앤 저크,Drop down type 01,회,kg
+,215,어깨,바벨,덤벨 쓰러스터,Drop down type 01,회,kg
+,216,어깨,바벨,바벨 프론트 레이즈,Drop down type 01,회,kg
+,217,어깨,바벨,바벨 업라이트 로우,Drop down type 01,회,kg
+,218,어깨,바벨,베발 숄더 프레스,Drop down type 01,회,kg
+,219,어깨,바벨,오버헤드 프레스,Drop down type 01,회,kg
+,220,어깨,바벨,밀리터리 프레스,Drop down type 01,회,kg
+,221,어깨,바벨,푸시 프레스,Drop down type 01,회,kg
+,222,어깨,바벨,사티드 바벨 비하인드 넥 프레스,Drop down type 01,회,kg
+,223,어깨,바벨,시티드 바벨 숄더 프레스,Drop down type 01,회,kg
+,224,어깨,바벨,시티드 바벨 오버헤드 프레스,Drop down type 01,회,kg
+,225,어깨,바벨,스탠딩 비하인드 넥플레스,Drop down type 01,회,kg
+,226,어깨,바벨,바벨 쓰러스터,Drop down type 01,회,kg
+,227,어깨,바벨,바벨 클린 앤 프레스,Drop down type 01,회,kg
+,228,어깨,바벨,바벨 벤트 오버 리버스 레이즈,Drop down type 01,회,kg
+,229,어깨,스미스 머신,스미스 머신 비하인드 넥 프레스,Drop down type 01,회,kg
+,230,어깨,스미스 머신,스미스 머신 오버헤드 숄더 프레스,Drop down type 01,회,kg
+,231,어깨,스미스 머신,스미스 스탠딩 숄더 프레스,Drop down type 01,회,kg
+,232,어깨,스미스 머신,스미스 밀리터리 프레스,Drop down type 01,회,kg
+,233,어깨,머신,머신 리버스 플라이,Drop down type 01,회,kg
+,234,어깨,머신,패덱 리어 델트,Drop down type 01,회,kg
+,235,어깨,머신,머신 리어 델트 플라이,Drop down type 01,회,kg
+,236,어깨,머신,머신 레터럴 레이즈,Drop down type 01,회,kg
+,237,어깨,머신,머신 숄더 프레스,Drop down type 01,회,kg
+,238,어깨,머신,머신 벤트 오버 레터럴 레이즈,Drop down type 01,회,kg
+,239,어깨,머신,머신 레터럴 레이즈,Drop down type 01,회,kg
+,240,어깨,케이블,케이블 리어 델트 플라이,Drop down type 01,회,kg
+,241,어깨,케이블,케이블 리버스 플라이,Drop down type 01,회,kg
+,242,어깨,케이블,케이블 페이스 풀,Drop down type 01,회,kg
+,243,어깨,케이블,케이블 프론트 레이즈,Drop down type 01,회,kg
+,244,어깨,케이블,케이블 레터럴 레이즈,Drop down type 01,회,kg
+,245,어깨,케이블,케이블 숄더 프레스,Drop down type 01,회,kg
+,246,어깨,케이블,케이블 와이 레이즈,Drop down type 01,회,kg
+,247,어깨,케이블,원 암 케이블 레터럴 레이즈,Drop down type 01,회,kg
+,248,어깨,케이블,케이블 업라이트 로우,Drop down type 01,회,kg
+,249,어깨,케이블,케이블 크로스 오버 리버스 플라이,Drop down type 01,회,kg
+,250,어깨,케이블,케이블 익스터널 로테이션,Drop down type 01,회,kg
+,251,어깨,케이블,케이블 숄더 인터널 로테이션,Drop down type 01,회,kg
+,252,어깨,밴드,밴드 페이스 풀,Drop down type 05,회,none
+,253,어깨,밴드,밴드 프론트 레이즈,Drop down type 05,회,none
+,254,어깨,밴드,밴드 레터럴 레이즈,Drop down type 05,회,none
+,255,어깨,밴드,밴드 업라이트 로우,Drop down type 05,회,none
+,256,어깨,밴드,밴드 리버스 플라이,Drop down type 05,회,none
+,257,어깨,스트레칭,어깨 스트레칭,Drop down type 05,회,none
+,258,어깨,유산소,배틀 로프,Drop down type 05,회,none
+,259,어깨,유산소,배틀 로프(시간),Drop down type 06,none,none
+,260,삼두,맨몸,밴치 딥스,Drop down type 05,회,none
+,261,삼두,맨몸,딥스,Drop down type 05,회,none
+,262,삼두,맨몸,중량 딥스,Drop down type 01,회,kg
+,263,삼두,맨몸,링 딥스,Drop down type 05,회,none
+,264,삼두,맨몸,트라이셉스 딥스 플로어,Drop down type 05,회,none
+,265,삼두,덤벨,덤벨 라잉 트라이셉 익스텐션,Drop down type 01,회,kg
+,266,삼두,덤벨,덤벨 트라이셉스 익스텐션,Drop down type 01,회,kg
+,267,삼두,덤벨,덤벨 트라이셉 킥 백,Drop down type 01,회,kg
+,268,삼두,덤벨,원 암 트라이셉스 익스텐션,Drop down type 01,회,kg
+,269,삼두,덤벨,원 암 덤벨 트라이셉 익스텐션,Drop down type 01,회,kg
+,270,삼두,덤벨,덤벨 테이트 프레스,Drop down type 01,회,kg
+,271,삼두,바벨,클로즈 그립 벤치 프레스,Drop down type 01,회,kg
+,272,삼두,바벨,바벨 인클라인 트라이셉스 익스텐션,Drop down type 01,회,kg
+,273,삼두,바벨,스컬크러셔,Drop down type 01,회,kg
+,274,삼두,바벨,바벨 라잉 트라이셉스 익스텐션,Drop down type 01,회,kg
+,275,삼두,바벨,바벨 시티드 트라이셉 익스텐션,Drop down type 01,회,kg
+,276,삼두,바벨,바벨 스텐딩 오버헤드 트라이셉 익스텐션,Drop down type 01,회,kg
+,277,삼두,바벨,바벨 JM 벤치 프레스,Drop down type 01,회,kg
+,278,삼두,스미스 머신,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,279,삼두,머신,머신 딥스,Drop down type 02,회,kg(보조)
+,280,삼두,머신,머신 트라이셉 익스텐션,Drop down type 01,회,kg
+,281,삼두,머신,머신 시티드 딥스,Drop down type 01,회,kg
+,282,삼두,케이블,원 암 케이블 트라이셉 익스텐션,Drop down type 01,회,kg
+,283,삼두,케이블,케이블 오버헤드 트라이셉 익스텐션,Drop down type 01,회,kg
+,284,삼두,케이블,케이블 로프 오버헤드 트라이셉 익스텐션,Drop down type 01,회,kg
+,285,삼두,케이블,케이블 로프 트라이셉 익스텐션,Drop down type 01,회,kg
+,286,삼두,케이블,트라이셉 로프 푸시다운,Drop down type 01,회,kg
+,287,삼두,케이블,케이블 리버스 그립 푸시다운,Drop down type 01,회,kg
+,288,삼두,케이블,케이블 라잉 트라이셉 익스텐션,Drop down type 01,회,kg
+,289,삼두,케이블,케이블 V-bar 트라이셉 푸시 다운,Drop down type 01,회,kg
+,290,삼두,케이블,케이블 리버스 그립 트라이셉 푸시 다운,Drop down type 01,회,kg
+,291,삼두,케이블,케이블 인클라인 푸시 다운,Drop down type 01,회,kg
+,292,삼두,케이블,케이블 원 암 트라이셉 킥 백,Drop down type 01,회,kg
+,293,삼두,밴드,밴드 어시스티드 딥스,Drop down type 05,회,none
+,294,삼두,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,295,삼두,스트레칭,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,296,이두,맨몸,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,297,이두,덤벨,컨센트레이션 컬,Drop down type 06,none,none
+,298,이두,덤벨,덤벨 바이셉 컬,Drop down type 01,회,kg
+,299,이두,덤벨,덤벨 해머 컬,Drop down type 01,회,kg
+,300,이두,덤벨,덤벨 인클라인 해머 컬,Drop down type 01,회,kg
+,301,이두,덤벨,덤벨 인클라인 컬,Drop down type 01,회,kg
+,302,이두,덤벨,원 암 덤벨 프리쳐 컬,Drop down type 01,회,kg
+,303,이두,덤벨,덤벨 드래그 컬,Drop down type 01,회,kg
+,304,이두,덤벨,덤벨 조트맨 컬,Drop down type 01,회,kg
+,305,이두,바벨,바벨 바이셉 컬,Drop down type 01,회,kg
+,306,이두,바벨,바벨 리버스 컬,Drop down type 01,회,kg
+,307,이두,바벨,프리쳐 컬,Drop down type 01,회,kg
+,308,이두,바벨,바벨 프리쳐 컬,Drop down type 01,회,kg
+,309,이두,바벨,스파이더 바벨 컬,Drop down type 01,회,kg
+,310,이두,바벨,바벨 드래그 컬,Drop down type 01,회,kg
+,311,이두,바벨,바벨 스탠딩 클로즈 그립 컬,Drop down type 01,회,kg
+,312,이두,바벨,바벨 와이드 그립 바이셉 컬,Drop down type 01,회,kg
+,313,이두,바벨,바벨 컨센트레이션 컬,Drop down type 01,회,kg
+,314,이두,스미스 머신,스미스 머신 바이셉 컬,Drop down type 01,회,kg
+,315,이두,머신,머신 프리쳐 컬,Drop down type 01,회,kg
+,316,이두,머신,머신 바이셉 컬,Drop down type 01,회,kg
+,317,이두,머신,원 암 머신 프리쳐 컬,Drop down type 01,회,kg
+,318,이두,케이블,케이블 바이셉 컬,Drop down type 01,회,kg
+,319,이두,케이블,케이블 더블 바이셉 컬,Drop down type 01,회,kg
+,320,이두,케이블,케이블 해머 컬,Drop down type 01,회,kg
+,321,이두,케이블,케이블 리버스 컬,Drop down type 01,회,kg
+,322,이두,케이블,원 암 케이블 바이셉 컬,Drop down type 01,회,kg
+,323,이두,케이블,케이블 프리쳐 컬,Drop down type 01,회,kg
+,324,이두,케이블,케이블 스쿼팅 컬,Drop down type 01,회,kg
+,325,이두,밴드,밴드 해머 컬,Drop down type 01,회,kg
+,326,이두,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,327,이두,스트레칭,이두근 폼룰러,Drop down type 06,none,none
+,328,전완,맨몸,매달리기,Drop down type 06,none,none
+,329,전완,맨몸,리스트 프레스,Drop down type 05,회,none
+,330,전완,덤벨,덤벨 리버스 리스트 컬,Drop down type 01,회,kg
+,331,전완,덤벨,덤벨 리스트 컬,Drop down type 01,회,kg
+,332,전완,덤벨,덤벨 스탠딩 리버스 컬,Drop down type 01,회,kg
+,333,전완,바벨,바벨 리버스 리스트 컬,Drop down type 01,회,kg
+,334,전완,스미스 머신,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,335,전완,머신,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,336,전완,케이블,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,337,전완,밴드,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,338,전완,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,339,전완,스트레칭,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,340,복근,맨몸,러시안 트위스트,Drop down type 05,회,none
+,341,복근,맨몸,시티드 니 업,Drop down type 05,회,none
+,342,복근,맨몸,윗몸 일으키기,Drop down type 05,회,none
+,343,복근,맨몸,토즈 투 바,Drop down type 05,회,none
+,344,복근,맨몸,바이씨클 크런치,Drop down type 05,회,none
+,345,복근,맨몸,크로스 바디 크런치,Drop down type 05,회,none
+,346,복근,맨몸,크런치,Drop down type 05,회,none
+,347,복근,맨몸,디클라인 크런치,Drop down type 05,회,none
+,348,복근,맨몸,오블리크 크런치,Drop down type 05,회,none
+,349,복근,맨몸,플랭크,Drop down type 06,none,none
+,350,복근,맨몸,플랭크 로테이션,Drop down type 06,none,none
+,351,복근,맨몸,리버스 플랭크,Drop down type 06,none,none
+,352,복근,맨몸,사이드 플랭크,Drop down type 06,none,none
+,353,복근,맨몸,사이드 브릿지,Drop down type 06,none,none
+,354,복근,맨몸,스파이더맨 플랭크 크런치,Drop down type 06,none,none
+,355,복근,맨몸,행잉 레그 레이즈,Drop down type 05,회,none
+,356,복근,맨몸,레그 레이즈,Drop down type 05,회,none
+,357,복근,맨몸,AB 슬라이드,Drop down type 05,회,none
+,358,복근,맨몸,스탠딩 사이드 크런치,Drop down type 05,회,none
+,359,복근,맨몸,사이드 크런치,Drop down type 05,회,none
+,360,복근,맨몸,중량 크런치,Drop down type 01,회,kg
+,361,복근,맨몸,니 터치 크런치,Drop down type 05,회,none
+,362,복근,맨몸,힐 터치 크런치,Drop down type 05,회,none
+,363,복근,맨몸,리버스 크런치,Drop down type 05,회,none
+,364,복근,맨몸,45도 익스텐션,Drop down type 05,회,none
+,365,복근,맨몸,중량 행잉 레그 레이즈,Drop down type 01,회,kg
+,366,복근,맨몸,캡틴스 체어 니 레이즈,Drop down type 05,회,none
+,367,복근,맨몸,중량 캡틴스 체어 니 레이즈,Drop down type 01,회,kg
+,368,복근,맨몸,캡틴스 체어 레그 레이즈,Drop down type 05,회,none
+,369,복근,맨몸,암 슬링어 행잉 레그 레이즈,Drop down type 05,회,none
+,370,복근,맨몸,라잉 레그 힙 레이즈,Drop down type 05,회,none
+,371,복근,맨몸,라잉 사이드 레그 레이즈,Drop down type 05,회,none
+,372,복근,맨몸,레그 레이즈 힙 리프트,Drop down type 05,회,none
+,373,복근,맨몸,싱글 레그 브릿지,Drop down type 05,회,none
+,374,복근,맨몸,더블 크런치,Drop down type 05,회,none
+,375,복근,맨몸,L-싯,Drop down type 05,회,none
+,376,복근,맨몸,V-싯,Drop down type 06,none,none
+,377,복근,맨몸,데드 버그,Drop down type 05,회,none
+,378,복근,맨몸,플러터 킥,Drop down type 05,회,none
+,379,복근,맨몸,프론트 레버,Drop down type 05,회,none
+,380,복근,맨몸,할로우 바디,Drop down type 06,none,none
+,381,복근,맨몸,스탠등 AB 슬라이드,Drop down type 05,회,none
+,382,복근,맨몸,디클라인 싯 업,Drop down type 05,회,none
+,383,복근,맨몸,맨몸 윈드밀,Drop down type 05,회,none
+,384,복근,맨몸,짐볼 크런치,Drop down type 05,회,none
+,385,복근,맨몸,시티드 트위스트,Drop down type 05,회,none
+,386,복근,맨몸,보수 크런치,Drop down type 05,회,none
+,387,복근,맨몸,시저 크런치,Drop down type 05,회,none
+,388,복근,맨몸,드래곤 플래그,Drop down type 05,회,none
+,389,복근,맨몸,글루트 햄 디벨로퍼 크런치,Drop down type 05,회,none
+,390,복근,맨몸,행잉 니 레이즈,Drop down type 05,회,none
+,391,복근,맨몸,잭 점프,Drop down type 05,회,none
+,392,복근,맨몸,라잉 레그 크로스,Drop down type 05,회,none
+,393,복근,맨몸,플랭크 풋 탭,Drop down type 06,none,none
+,394,복근,맨몸,로만 체어 싯업,Drop down type 05,회,none
+,395,복근,덤벨,덤벨 사이드 밴드,Drop down type 01,회,kg
+,396,복근,바벨,바벨 스탠딩 트위스트,Drop down type 01,회,kg
+,397,복근,스미스 머신,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,398,복근,머신,머신 크런치,Drop down type 01,회,kg
+,399,복근,머신,머신 시티드 크런치,Drop down type 01,회,kg
+,400,복근,케이블,중량 케이블 크런치,Drop down type 01,회,kg
+,401,복근,케이블,케이블 우드찹,Drop down type 01,회,kg
+,402,복근,케이블,케이블 트위스트,Drop down type 01,회,kg
+,403,복근,케이블,케이블 스탠딩 크런치,Drop down type 01,회,kg
+,404,복근,케이블,케이블 시티드 크런치,Drop down type 01,회,kg
+,405,복근,밴드,밴드 팔로프 프레스,Drop down type 05,회,none
+,406,복근,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,407,복근,스트레칭,요가,Drop down type 06,none,none
+,408,복근,스트레칭,필라테스 스완,Drop down type 05,회,none
+,409,복근,스트레칭,필라테스 헌드레드,Drop down type 05,회,none
+,410,복근,스트레칭,필라테스 바이씨클,Drop down type 05,회,none
+,411,복근,스트레칭,필라테스 크런치,Drop down type 05,회,none
+,412,복근,스트레칭,필라테스 컨트롤 밸런스,Drop down type 05,회,none
+,413,복근,스트레칭,필라테스 코르크 스크류,Drop down type 05,회,none
+,414,복근,스트레칭,필라테스 크랩,Drop down type 05,회,none
+,415,복근,스트레칭,필라테스 레그 스트레치,Drop down type 05,회,none
+,416,복근,스트레칭,필라테스 힙 트위스트,Drop down type 05,회,none
+,417,복근,스트레칭,필라테스 잭 나이프,Drop down type 05,회,none
+,418,복근,스트레칭,필라테스 레그 풀 사이드,Drop down type 05,회,none
+,419,복근,스트레칭,필라테스 레그 풀,Drop down type 05,회,none
+,420,복근,스트레칭,광배 스트레칭,Drop down type 05,회,none
+,421,복근,스트레칭,폼 룰러,Drop down type 06,none,none
+,422,복근,스트레칭,보수 외발 균형 잡기,Drop down type 06,none,none
+,423,복근,스트레칭,보수 싱글 레그 스탠드,Drop down type 06,none,none
+,424,둔근,맨몸,글루트 킥 백,Drop down type 05,회,none
+,425,둔근,맨몸,힙 익스텐션,Drop down type 01,회,kg
+,426,둔근,맨몸,힙 쓰러스트,Drop down type 05,회,none
+,427,둔근,맨몸,맨몸 스텝업,Drop down type 05,회,none
+,428,둔근,맨몸,힙 브릿지,Drop down type 05,회,none
+,429,둔근,맨몸,싱글 레그 벤치 브릿지,Drop down type 05,회,none
+,430,둔근,맨몸,투 레그 벤치 브릿지,Drop down type 05,회,none
+,431,둔근,맨몸,플로어 하이퍼익스텐션,Drop down type 05,회,none
+,432,둔근,맨몸,프로그 리버스 하이퍼익스텐션,Drop down type 05,회,none
+,433,둔근,맨몸,버드 독,Drop down type 05,회,none
+,434,둔근,맨몸,스탠딩 힙 어브덕션,Drop down type 05,회,none
+,435,둔근,맨몸,글루트 햄 디벨로퍼 힙 익스텐션,Drop down type 05,회,none
+,436,둔근,맨몸,외발 균형잡기,Drop down type 06,none,none
+,437,둔근,맨몸,싱글 레그 스탠드,Drop down type 06,none,none
+,438,둔근,맨몸,힙 스쿼트,Drop down type 05,회,none
+,439,둔근,맨몸,맨몸 힙 어브덕션,Drop down type 05,회,none
+,440,둔근,맨몸,사이드 스탭 스윙,Drop down type 05,회,none
+,441,둔근,덤벨,덤벨 브릿지,Drop down type 01,회,kg
+,442,둔근,바벨,바벨 힙 쓰러스트,Drop down type 01,회,kg
+,443,둔근,스미스 머신,스미스 머신 힙 쓰러스트,Drop down type 01,회,kg
+,444,둔근,스미스 머신,스미스 머신 시티프 레그 데드리프트,Drop down type 01,회,kg
+,445,둔근,스미스 머신,스미스 덩키 킥,Drop down type 01,회,kg
+,446,둔근,스미스 머신,싱글 레그 스미스 머신 데드리프트,Drop down type 01,회,kg
+,447,둔근,머신,클루드 킥 백 머신,Drop down type 01,회,kg
+,448,둔근,머신,머신 힙 익스텐션,Drop down type 01,회,kg
+,449,둔근,머신,몬스터 글루트 머신,Drop down type 01,회,kg
+,450,둔근,머신,링크 아웃 싸이 머신,Drop down type 01,회,kg
+,451,둔근,머신,머신 스탠딩 힙 어브덕션,Drop down type 01,회,kg
+,452,둔근,머신,스탠딩 아웃 싸이 머신,Drop down type 01,회,kg
+,453,둔근,케이블,싱글 레그 케이블 킥 백,Drop down type 01,회,kg
+,454,둔근,케이블,케이블 힙 익스텐션,Drop down type 01,회,kg
+,455,둔근,케이블,케이블 풀 쓰루,Drop down type 01,회,kg
+,456,둔근,케이블,케이블 힙 어브덕션,Drop down type 01,회,kg
+,457,둔근,케이블,케이블 스쿼트 로우,Drop down type 01,회,kg
+,458,둔근,케이블,케이블 스탠딩 힙 쓰러스트,Drop down type 01,회,kg
+,459,둔근,밴드,밴드 글루트 킥 백,Drop down type 05,회,none
+,460,둔근,밴드,밴드 힙 익스텐션,Drop down type 05,회,none
+,461,둔근,밴드,싱글 레그 밴드 킥 백,Drop down type 05,회,none
+,462,둔근,밴드,밴드 레그 킥 백,Drop down type 05,회,none
+,463,둔근,유산소,스테퍼,Drop down type 03,회,km
+,464,둔근,스트레칭,개구리 자세 스트레칭,Drop down type 05,회,none
+,465,둔근,스트레칭,약스터 스트레칭,Drop down type 05,회,none
+,466,둔근,스트레칭, 누워서 둔군 폼룰러,Drop down type 06,none,none
+,467,둔근,스트레칭,앉아서 둔근 폼룰러,Drop down type 06,none,none
+,468,둔근,스트레칭,전면 허벅지 폼룰러,Drop down type 06,none,none
+,469,햄스트링,맨몸,박스 점프,Drop down type 05,회,none
+,470,햄스트링,맨몸,팔 벌려뛰기,Drop down type 05,회,none
+,471,햄스트링,맨몸,클루트 햄 레이즈,Drop down type 05,회,none
+,472,햄스트링,맨몸,암 워킹,Drop down type 05,회,none
+,473,햄스트링,맨몸,인치웜,Drop down type 05,회,none
+,474,햄스트링,맨몸,중량 백 익스텐션,Drop down type 01,회,kg
+,475,햄스트링,맨몸,클램쉘,Drop down type 05,회,none
+,476,햄스트링,맨몸,싱글 레그 데드리프트,Drop down type 05,회,none
+,477,햄스트링,맨몸,아라베스크,Drop down type 05,회,none
+,478,햄스트링,맨몸,노르딕 햄스트링 컬,Drop down type 05,회,none
+,479,햄스트링,덤벨,덤벨 루마니안 데드리프트,Drop down type 01,회,kg
+,480,햄스트링,덤벨,덤벨 스티프 레그 데드리프트,Drop down type 01,회,kg
+,481,햄스트링,덤벨,싱글 레그 덤벨 데드 리프트,Drop down type 01,회,kg
+,482,햄스트링,바벨,클린,Drop down type 01,회,kg
+,483,햄스트링,바벨,바벨 루마니안 데드리프트,Drop down type 01,회,kg
+,484,햄스트링,바벨,바벨 스티프 레그 데드리프트,Drop down type 01,회,kg
+,485,햄스트링,바벨,데드리프트,Drop down type 01,회,kg
+,486,햄스트링,바벨,베벨 데드리프트,Drop down type 01,회,kg
+,487,햄스트링,바벨,랙 풀,Drop down type 01,회,kg
+,488,햄스트링,바벨,스모 데드리프트,Drop down type 01,회,kg
+,489,햄스트링,바벨,굿 모닝,Drop down type 01,회,kg
+,490,햄스트링,바벨,싱글 레그 바벨 데드리프트,Drop down type 01,회,kg
+,491,햄스트링,바벨,바벨 스모 루마니안 데드리프트,Drop down type 01,회,kg
+,492,햄스트링,바벨,랜드마인 루마니안 데드리프트,Drop down type 01,회,kg
+,493,햄스트링,바벨,바벨 굿 모닝,Drop down type 01,회,kg
+,494,햄스트링,바벨,데피싯 바벨 데드리프트,Drop down type 01,회,kg
+,495,햄스트링,바벨,데피싯 바벨 스모드 데드리프트,Drop down type 01,회,kg
+,496,햄스트링,스미스 머신,스미스 머신 데드리프트,Drop down type 01,회,kg
+,497,햄스트링,스미스 머신,스미스 머신 굿 모닝,Drop down type 01,회,kg
+,498,햄스트링,머신,로잉 머신,Drop down type 03,회,km
+,499,햄스트링,머신,힙 어브덕션,Drop down type 01,회,kg
+,500,햄스트링,머신,아웃 싸이 머신,Drop down type 01,회,kg
+,501,햄스트링,머신,머신 힙 어브덕션,Drop down type 01,회,kg
+,502,햄스트링,머신,힙 어덕션,Drop down type 01,회,kg
+,503,햄스트링,머신,이너 싸이 머신,Drop down type 01,회,kg
+,504,햄스트링,머신,라잉 레그 컬,Drop down type 01,회,kg
+,505,햄스트링,머신,라잉 햄스트링 컬,Drop down type 01,회,kg
+,506,햄스트링,머신,시티드 레그 컬,Drop down type 01,회,kg
+,507,햄스트링,머신,스탠딩 레그 컬,Drop down type 01,회,kg
+,508,햄스트링,머신,싱글 레그 컬,Drop down type 01,회,kg
+,509,햄스트링,머신,라잉 싱글 레그 컬,Drop down type 01,회,kg
+,510,햄스트링,케이블,케이블 힙 어덕션,Drop down type 01,회,kg
+,511,햄스트링,케이블,케이블 데드리프트,Drop down type 01,회,kg
+,512,햄스트링,케이블,케이블 스티프 레그 데드리프트,Drop down type 01,회,kg
+,513,햄스트링,밴드,밴드 데드리프트,Drop down type 05,회,none
+,514,햄스트링,밴드,밴드 스티프 레그 데드리프트,Drop down type 05,회,none
+,515,햄스트링,밴드,밴드 어시스티드 노르딕 햄스트링 컬,Drop down type 05,회,none
+,516,햄스트링,유산소,계단 오르기,Drop down type 06,none,none
+,517,햄스트링,유산소,줄넘기 이단 뛰기,Drop down type 05,회,none
+,518,햄스트링,스트레칭,햄스트링 스트레칭,Drop down type 05,회,none
+,519,햄스트링,스트레칭,골반 스트레칭,Drop down type 05,회,none
+,520,햄스트링,스트레칭,허리 돌리기,Drop down type 05,회,none
+,521,햄스트링,스트레칭,후면 허벅지 폼룰러,Drop down type 06,none,none
+,522,대퇴사두,맨몸,마운틴 클라이머,Drop down type 05,회,none
+,523,대퇴사두,맨몸,크로스 런지,Drop down type 05,회,none
+,524,대퇴사두,맨몸,런지,Drop down type 05,회,none
+,525,대퇴사두,맨몸,사이드 레그 레이즈,Drop down type 05,회,none
+,526,대퇴사두,맨몸,맨몸 스쿼트,Drop down type 05,회,none
+,527,대퇴사두,맨몸,점프 스쿼트,Drop down type 05,회,none
+,528,대퇴사두,맨몸,피스톨 스쿼트,Drop down type 05,회,none
+,529,대퇴사두,맨몸,스쿼트 버피,Drop down type 05,회,none
+,530,대퇴사두,맨몸,농구,Drop down type 06,none,none
+,531,대퇴사두,맨몸,크로스 런지,Drop down type 05,회,none
+,532,대퇴사두,맨몸,사이드 스쿼트,Drop down type 05,회,none
+,533,대퇴사두,맨몸,스플릿 스쿼트,Drop down type 05,회,none
+,534,대퇴사두,맨몸,쉬림프 스쿼트,Drop down type 05,회,none
+,535,대퇴사두,맨몸,맨몸 정지 스쿼트,Drop down type 05,회,none
+,536,대퇴사두,맨몸,에어 바이크,Drop down type 05,회,none
+,537,대퇴사두,맨몸,프로그 스쿼트,Drop down type 01,회,kg
+,538,대퇴사두,맨몸,펄스 런지,Drop down type 04,none,km
+,539,대퇴사두,맨몸,보수 스쿼트,Drop down type 05,회,none
+,540,대퇴사두,맨몸,보수 런지,Drop down type 05,회,none
+,541,대퇴사두,맨몸,맨몸 와이드 스쿼트,Drop down type 05,회,none
+,542,대퇴사두,맨몸,맨몸 사이드 런지,Drop down type 05,회,none
+,543,대퇴사두,맨몸,벗 킥,Drop down type 05,회,none
+,544,대퇴사두,맨몸,스케이터 점프,Drop down type 05,회,none
+,545,대퇴사두,맨몸,인맨아웃 스쿼트,Drop down type 05,회,none
+,546,대퇴사두,맨몸,맨몸 백 런지,Drop down type 05,회,none
+,547,대퇴사두,맨몸,짐볼 월 스쿼트,Drop down type 05,회,none
+,548,대퇴사두,맨몸,짐볼 중량 월 스쿼트,Drop down type 01,회,kg
+,549,대퇴사두,맨몸,워킹 런지,Drop down type 05,회,none
+,550,대퇴사두,맨몸,힌두 스쿼트,Drop down type 05,회,none
+,551,대퇴사두,맨몸,데피싯 네로우 스쿼트,Drop down type 05,회,none
+,552,대퇴사두,맨몸,제자리 점프,Drop down type 05,회,none
+,553,대퇴사두,덤벨,덤벨 스내치,Drop down type 01,회,kg
+,554,대퇴사두,덤벨,덤벨 런지,Drop down type 01,회,kg
+,555,대퇴사두,덤벨,덤벨 워킹 런지,Drop down type 01,회,kg
+,556,대퇴사두,덤벨,파머스 캐리,Drop down type 01,회,kg
+,557,대퇴사두,덤벨,덤벨 스쿼트,Drop down type 01,회,kg
+,558,대퇴사두,덤벨,덤벨 스텝업,Drop down type 01,회,kg
+,559,대퇴사두,덤벨,덤벨 버피,Drop down type 01,회,kg
+,560,대퇴사두,덤벨,덤벨 사이드 스쿼트,Drop down type 01,회,kg
+,561,대퇴사두,덤벨,덤벨 스플릿 스쿼트,Drop down type 01,회,kg
+,562,대퇴사두,덤벨,원 암 덤벨 오버헤드 런지,Drop down type 01,회,kg
+,563,대퇴사두,덤벨,덤벨 오버헤드 런지,Drop down type 01,회,kg
+,564,대퇴사두,덤벨,덤벨 백 런지,Drop down type 01,회,kg
+,565,대퇴사두,덤벨,덤벨 스태틱 런지,Drop down type 01,회,kg
+,566,대퇴사두,덤벨,덤벨 사이드 런지,Drop down type 01,회,kg
+,567,대퇴사두,덤벨,덤벨 고블릿 런지,Drop down type 01,회,kg
+,568,대퇴사두,덤벨,덤벨 와이드 스쿼트,Drop down type 01,회,kg
+,569,대퇴사두,덤벨,덤벨 스모 스쿼트,Drop down type 01,회,kg
+,570,대퇴사두,바벨,스내치,Drop down type 01,회,kg
+,571,대퇴사두,바벨,바벨 런지,Drop down type 01,회,kg
+,572,대퇴사두,바벨,바벨 스쿼트,Drop down type 01,회,kg
+,573,대퇴사두,바벨,불가리안 스플릿 스쿼트,Drop down type 01,회,kg
+,574,대퇴사두,바벨,프론트 스쿼트,Drop down type 01,회,kg
+,575,대퇴사두,바벨,오버헤드 스쿼트,Drop down type 01,회,kg
+,576,대퇴사두,바벨,바벨 스텝업,Drop down type 01,회,kg
+,577,대퇴사두,바벨,랜드마인 스쿼트 앤 프레스,Drop down type 01,회,kg
+,578,대퇴사두,바벨,바벨 오버헤드 스쿼트,Drop down type 01,회,kg
+,579,대퇴사두,바벨,바벨 로우 바 스쿼트,Drop down type 01,회,kg
+,580,대퇴사두,바벨,바벨 스플릿 스쿼트,Drop down type 01,회,kg
+,581,대퇴사두,바벨,바벨 제퍼슨 스쿼트,Drop down type 01,회,kg
+,582,대퇴사두,바벨,바벨 제퍼슨 스쿼트,Drop down type 01,회,kg
+,583,대퇴사두,바벨,정지 데드리프트,Drop down type 01,회,kg
+,584,대퇴사두,바벨,정지 풀 스쿼트,Drop down type 01,회,kg
+,585,대퇴사두,바벨,제르셔 스쿼트,Drop down type 01,회,kg
+,586,대퇴사두,바벨,바벨 점프 스쿼트,Drop down type 01,회,kg
+,587,대퇴사두,바벨,바벨 하프 스쿼트,Drop down type 01,회,kg
+,588,대퇴사두,바벨,바벨 와이드 스쿼트,Drop down type 01,회,kg
+,589,대퇴사두,바벨,바벨 불가리안 스플릿 스쿼트,Drop down type 01,회,kg
+,590,대퇴사두,바벨,바벨 핵 스쿼트,Drop down type 01,회,kg
+,591,대퇴사두,바벨,무릎 바벨 스쿼트,Drop down type 01,회,kg
+,592,대퇴사두,바벨,바벨 워킹 런지,Drop down type 01,회,kg
+,593,대퇴사두,스미스 머신,스미스 머신 런지,Drop down type 01,회,kg
+,594,대퇴사두,스미스 머신,스미스 머신 스쿼트,Drop down type 01,회,kg
+,595,대퇴사두,스미스 머신,스미스 머신 스플릿 스쿼트,Drop down type 01,회,kg
+,596,대퇴사두,스미스 머신,스미스 머신 싱글 레그 스필릿 스쿼트,Drop down type 01,회,kg
+,597,대퇴사두,스미스 머신,스미스 스텝업,Drop down type 01,회,kg
+,598,대퇴사두,머신,레그 익스텐션,Drop down type 01,회,kg
+,599,대퇴사두,머신,레그 프레스,Drop down type 01,회,kg
+,600,대퇴사두,머신,머신 레그 프레스,Drop down type 01,회,kg
+,601,대퇴사두,머신,머신 핵 스쿼트,Drop down type 01,회,kg
+,602,대퇴사두,머신,브이 스쿼트,Drop down type 01,회,kg
+,603,대퇴사두,머신,싱글 레그 익스텐션,Drop down type 01,회,kg
+,604,대퇴사두,머신,싱글 레그 프레스,Drop down type 01,회,kg
+,605,대퇴사두,머신,싱글 레그 머신 레그 프레스,Drop down type 01,회,kg
+,606,대퇴사두,머신,리버스 핵 스쿼트,Drop down type 01,회,kg
+,607,대퇴사두,머신,리버스 브이 스쿼트,Drop down type 01,회,kg
+,608,대퇴사두,머신,리버스 핵 스쿼트,Drop down type 01,회,kg
+,609,대퇴사두,머신,리버스 브이 스쿼트,Drop down type 01,회,kg
+,610,대퇴사두,머신,핵 슬라이드,Drop down type 01,회,kg
+,611,대퇴사두,머신,리니어 핵 스쿼트,Drop down type 01,회,kg
+,612,대퇴사두,머신,팬듈럼 스쿼트,Drop down type 01,회,kg
+,613,대퇴사두,머신,벨트 스쿼트,Drop down type 01,회,kg
+,614,대퇴사두,케이블,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,615,대퇴사두,밴드,밴드 레그 사이드 킥,Drop down type 05,회,none
+,616,대퇴사두,유산소,버피,Drop down type 05,회,none
+,617,대퇴사두,유산소,싸이클,Drop down type 03,회,km
+,618,대퇴사두,유산소,일립티컬 머신,Drop down type 05,회,none
+,619,대퇴사두,유산소,야외 러닝,Drop down type 05,회,none
+,620,대퇴사두,유산소,트레드밀 러닝,Drop down type 05,회,none
+,621,대퇴사두,유산소,러닝머신,Drop down type 05,회,none
+,622,대퇴사두,유산소,워킹,Drop down type 05,회,none
+,623,대퇴사두,유산소,스프린트,Drop down type 05,회,none
+,624,대퇴사두,유산소,스플릿 박스 점프,Drop down type 05,회,none
+,625,대퇴사두,유산소,스텝 밀,Drop down type 05,회,none
+,626,대퇴사두,유산소,인클라인 트레드밀,Drop down type 05,회,none
+,627,대퇴사두,유산소,마이마운틴,Drop down type 05,회,none
+,628,대퇴사두,유산소,야외 싸이클,Drop down type 05,회,none
+,629,대퇴사두,스트레칭,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,630,종아리,맨몸,줄넘기,Drop down type 06,none,none
+,631,종아리,맨몸,스탠딩 카프 레이즈,Drop down type 06,none,none
+,632,종아리,맨몸,크리스 크로스 점프,Drop down type 06,none,none
+,633,종아리,맨몸,하이니,Drop down type 05,회,none
+,634,종아리,맨몸,제자리 뛰기,Drop down type 05,회,none
+,635,종아리,맨몸,땅바닥 짚기,Drop down type 01,회,kg
+,636,종아리,맨몸,종아리 스트레칭,Drop down type 05,회,none
+,637,종아리,덤벨,덤벨 스탠딩 카프 레이즈,Drop down type 01,회,kg
+,638,종아리,덤벨,시티드 덤벨 카프 레이즈,Drop down type 01,회,kg
+,639,종아리,바벨,스탠딩 바벨 카프 레이즈,Drop down type 01,회,kg
+,640,종아리,스미스 머신,스미스 머신 카프 레이즈,Drop down type 01,회,kg
+,641,종아리,머신,시티드 카프 레이즈,Drop down type 01,회,kg
+,642,종아리,머신,머신 카프 익스텐션,Drop down type 01,회,kg
+,643,종아리,머신,프레스 머신 카프 레이즈,Drop down type 01,회,kg
+,644,종아리,머신,레그 프레스 머신 카프 레이즈,Drop down type 01,회,kg
+,645,종아리,케이블,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,646,종아리,밴드,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,647,종아리,유산소,일치하는 운동이 없습니다.,Drop down type 06,none,none
+,648,종아리,스트레칭,필라테스 라잉 더블 레그 킥,Drop down type 05,회,none
+,649,종아리,스트레칭,윗몸 굽히기 스트레칭,Drop down type 05,회,none
+,650,종아리,스트레칭,종아리 폼룰러,Drop down type 06,none,none
