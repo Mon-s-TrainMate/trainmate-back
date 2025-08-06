@@ -2,7 +2,6 @@
 
 import json
 from django.core.management.base import BaseCommand
-from workouts.models import Exercise
 
 class Command(BaseCommand):
     help = 'JSON 파일에서 운동 데이터 로드'
