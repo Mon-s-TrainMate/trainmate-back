@@ -21,6 +21,7 @@ def get_user_profile_data(user):
         'id': user.id,
         'name': user.name,
         'email': user.email,
+        'phone': user.phone,
         'user_type': user.user_type,
         'created_at': user.date_joined,
         # 기본값
@@ -39,6 +40,7 @@ def get_user_profile_data(user):
             profile_data.update({
                 'profile_image': trainer_profile.profile_image.url if trainer_profile.profile_image else None,
                 'age': trainer_profile.age,
+                'phone': trainer_profile.phone,
                 'height_cm': trainer_profile.height_cm,
                 'weight_kg': trainer_profile.weight_kg,
                 'body_fat_percentage': trainer_profile.body_fat_percentage,
@@ -50,6 +52,7 @@ def get_user_profile_data(user):
             profile_data.update({
                 'profile_image': member_profile.profile_image.url if member_profile.profile_image else None,
                 'age': member_profile.age,
+                'phone': member_profile.phone,
                 'height_cm': member_profile.height_cm,
                 'weight_kg': member_profile.weight_kg,
                 'body_fat_percentage': member_profile.body_fat_percentage,
@@ -74,6 +77,7 @@ def get_user_profile_data(user):
             "properties": {
                 "profile_image": {"type": "string", "format": "binary", "description": "프로필 이미지"},
                 "age": {"type": "integer", "description": "나이"},
+                "phone": {"type": "string", "description": "전화번호"},
                 "height_cm": {"type": "number", "description": "키 (cm)"},
                 "weight_kg": {"type": "number", "description": "몸무게 (kg)"},
                 "body_fat_percentage": {"type": "number", "description": "체지방량 (%)"},
@@ -103,7 +107,7 @@ def my_profile_view(request):
     elif request.method in ['PUT', 'PATCH']:
         # 프로필 수정 로직
         user = request.user
-        updatable_fields = ['age', 'height_cm', 'weight_kg', 'body_fat_percentage', 'muscle_mass_kg']
+        updatable_fields = ['age', 'phone', 'height_cm', 'weight_kg', 'body_fat_percentage', 'muscle_mass_kg']
 
         try:
             if user.user_type == 'trainer':
@@ -202,6 +206,7 @@ def get_user_profile(request, user_id):
                                 "profile_image": "http://example.com/profile.jpg",
                                 "name": "김트레이너",
                                 "email": "trainer@example.com",
+                                "phone": "010-1234-5678",
                                 "updated_at": "2024-01-01T00:00:00Z",
                                 "is_my_profile": True,
                                 "member_count": 3
@@ -212,6 +217,7 @@ def get_user_profile(request, user_id):
                                     "profile_image": None,
                                     "name": "김회원",
                                     "email": "member@example.com",
+                                    "phone": "010-1234-5678",
                                     "updated_at": "2024-01-01T00:00:00Z",
                                     "is_my_profile": False,
                                     "profile_completed": True
@@ -285,6 +291,7 @@ def trainer_member_list(request):
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
             'name': getattr(trainer, 'name', 'Unknown'),
             'email': getattr(trainer, 'email', 'unknown@example.com'),
+            'phone': getattr(trainer, 'phone', '010-1234-5678'),
             'updated_at': trainer.updated_at.isoformat() if hasattr(trainer, 'updated_at') and trainer.updated_at else None,
             'is_my_profile': True,
             'member_count': member_count
@@ -307,6 +314,7 @@ def trainer_member_list(request):
                     'profile_image': member.profile_image.url if member.profile_image else None,
                     'name': getattr(member, 'name', 'Unknown'),
                     'email': getattr(member, 'email', 'unknown@example.com'),
+                    'phone': getattr(trainer, 'phone', '010-1234-5678'),
                     'updated_at': member.updated_at.isoformat() if hasattr(member, 'updated_at') and member.updated_at else None,
                     'is_my_profile': False,
                     'profile_completed': getattr(member, 'profile_completed', False)
@@ -574,6 +582,7 @@ def trainer_detail(request, trainer_id):
             'profile_image': trainer.profile_image.url if trainer.profile_image else None,
             'name': getattr(trainer, 'name', 'Unknown'),
             'email': getattr(trainer, 'email', 'unknown@example.com'),
+            'phone': getattr(trainer, 'phone', '010-1234-5678'),
             'age': getattr(trainer, 'age', None),
             'height_cm': float(trainer.height_cm) if trainer.height_cm else None,
             'weight_kg': float(trainer.weight_kg) if trainer.weight_kg else None,
@@ -647,6 +656,7 @@ def member_detail(request, member_id):
             'profile_image': member.profile_image.url if member.profile_image else None,
             'name': getattr(member, 'name', 'Unknown'),
             'email': getattr(member, 'email', 'unknown@example.com'),
+            'phone': getattr(member, 'phone', '010-1234-5678'),
             'age': getattr(member, 'age', None),
             'height_cm': float(member.height_cm) if member.height_cm else None,
             'weight_kg': float(member.weight_kg) if member.weight_kg else None,
@@ -665,6 +675,7 @@ def member_detail(request, member_id):
                 'id': member.assigned_trainer.id,
                 'name': getattr(member.assigned_trainer, 'name', 'Unknown'),
                 'email': getattr(member.assigned_trainer, 'email', 'unknown@example.com'),
+                'phone': getattr(member.assigned_trainer, 'phone', '010-1234-5678'),
                 'profile_image': member.assigned_trainer.profile_image.url if member.assigned_trainer.profile_image else None
             }
         else:
