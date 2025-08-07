@@ -45,7 +45,7 @@ from .models import DailyWorkout, ExerciseSet, WorkoutExercise, Exercise
 @api_view(['GET'])
 @permission_classes([IsAuthenticated])
 def member_records_view(request, member_id):
-    """회원의 운동 기록을 운동별로 그룹화하여 조회"""
+    # 회원의 운동 기록을 운동별로 그룹화하여 조회 
     try:
         # 날짜 필터 (옵션)
         date_filter = request.GET.get('date')
@@ -134,7 +134,7 @@ def member_records_view(request, member_id):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def workout_set_create_view(request, member_id):
-    """운동 세트 등록"""
+    # 운동 세트 등록 
     try:
         data = request.data
         
@@ -161,7 +161,14 @@ def workout_set_create_view(request, member_id):
         )
         
         # 2. 현재 로그인한 트레이너 정보 가져오기
-        trainer = request.user  # 로그인한 트레이너
+        from members.models import Trainer
+        try:
+            trainer = Trainer.objects.get(user_ptr_id=request.user.id)
+        except Trainer.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': '트레이너 정보를 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # 3. 오늘 날짜 DailyWorkout 찾기/생성
         today = timezone.now().date()
