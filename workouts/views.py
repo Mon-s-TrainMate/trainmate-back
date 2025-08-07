@@ -144,18 +144,20 @@ def workout_set_create_view(request, member_id):
             if current_user.id == member_id:
                 # 트레이너 본인의 운동 기록
                 target_user = current_user
+                is_trainer_workout = True
             else:
                 # 소속 회원의 운동 기록인지 확인
                 from django.contrib.auth import get_user_model
                 User = get_user_model()
                 try:
                     target_user = User.objects.get(id=member_id, user_type='member')
-                    # 해당 회원이 현재 트레이너에게 소속되어 있는지 확인
-                    if not hasattr(target_user, 'member_trainer') or target_user.member_trainer != current_user:
-                        return Response({
-                            'success': False,
-                            'message': '해당 회원에 대한 권한이 없습니다.'
-                        }, status=status.HTTP_403_FORBIDDEN)
+                    is_trainer_workout = False
+                    # 해당 회원이 현재 트레이너에게 소속되어 있는지 확인 (필요시)
+                    # if not hasattr(target_user, 'member_trainer') or target_user.member_trainer != current_user:
+                    #     return Response({
+                    #         'success': False,
+                    #         'message': '해당 회원에 대한 권한이 없습니다.'
+                    #     }, status=status.HTTP_403_FORBIDDEN)
                 except User.DoesNotExist:
                     return Response({
                         'success': False,
@@ -170,6 +172,7 @@ def workout_set_create_view(request, member_id):
                     'message': '본인의 운동 기록만 등록할 수 있습니다.'
                 }, status=status.HTTP_403_FORBIDDEN)
             target_user = current_user
+            is_trainer_workout = False
         else:
             return Response({
                 'success': False,
@@ -199,35 +202,19 @@ def workout_set_create_view(request, member_id):
         )
         
         # 2. 현재 로그인한 트레이너 정보 가져오기
-        from members.models import Trainer, Member
-        
-        if target_user.user_type == 'trainer':
-            # 트레이너 본인의 운동 기록
-            try:
-                trainer_instance = Trainer.objects.get(user_ptr_id=target_user.id)
-                member_instance = trainer_instance  # 트레이너도 Member 상속
-                registering_trainer = trainer_instance
-            except Trainer.DoesNotExist:
-                return Response({
-                    'success': False,
-                    'message': '트레이너 정보를 찾을 수 없습니다.'
-                }, status=status.HTTP_404_NOT_FOUND)
-        else:
-            # 회원의 운동 기록
-            try:
-                member_instance = Member.objects.get(user_ptr_id=target_user.id)
-                # 등록하는 트레이너는 현재 로그인한 트레이너
-                registering_trainer = Trainer.objects.get(user_ptr_id=current_user.id)
-            except (Member.DoesNotExist, Trainer.DoesNotExist):
-                return Response({
-                    'success': False,
-                    'message': '회원 또는 트레이너 정보를 찾을 수 없습니다.'
-                }, status=status.HTTP_404_NOT_FOUND)
+        from members.models import Trainer
+        try:
+            registering_trainer = Trainer.objects.get(user_ptr_id=current_user.id)
+        except Trainer.DoesNotExist:
+            return Response({
+                'success': False,
+                'message': '트레이너 정보를 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
         
         # 3. 오늘 날짜 DailyWorkout 찾기/생성
         today = timezone.now().date()
         daily_workout, created = DailyWorkout.objects.get_or_create(
-            member=member_instance,
+            member_id=member_id, 
             trainer=registering_trainer,
             workout_date=today,
             defaults={
@@ -309,6 +296,7 @@ def workout_set_create_view(request, member_id):
                 'weight_kg': float(exercise_set.weight_kg),
                 'duration_sec': int(exercise_set.duration.total_seconds()),
                 'calories': exercise_set.calories,
+                'is_trainer_workout': is_trainer_workout,  # ✅ 트레이너 본인 운동인지 표시
                 'workout_totals': {
                     'total_sets': workout_exercise.total_sets,
                     'total_duration_sec': int(workout_exercise.total_duration.total_seconds()),
