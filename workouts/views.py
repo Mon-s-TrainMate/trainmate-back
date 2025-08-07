@@ -139,25 +139,20 @@ def workout_set_create_view(request, member_id):
         data = request.data
         current_user = request.user
         
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+        
         if current_user.user_type == 'trainer':
-            # 트레이너인 경우: 본인이거나 본인 소속 회원인지 확인
+            # 트레이너인 경우: 본인이거나 회원 타입 사용자
             if current_user.id == member_id:
                 # 트레이너 본인의 운동 기록
                 target_user = current_user
                 is_trainer_workout = True
             else:
-                # 소속 회원의 운동 기록인지 확인
-                from django.contrib.auth import get_user_model
-                User = get_user_model()
+                # 회원의 운동 기록
                 try:
                     target_user = User.objects.get(id=member_id, user_type='member')
                     is_trainer_workout = False
-                    # 해당 회원이 현재 트레이너에게 소속되어 있는지 확인 (필요시)
-                    # if not hasattr(target_user, 'member_trainer') or target_user.member_trainer != current_user:
-                    #     return Response({
-                    #         'success': False,
-                    #         'message': '해당 회원에 대한 권한이 없습니다.'
-                    #     }, status=status.HTTP_403_FORBIDDEN)
                 except User.DoesNotExist:
                     return Response({
                         'success': False,
@@ -165,7 +160,7 @@ def workout_set_create_view(request, member_id):
                     }, status=status.HTTP_404_NOT_FOUND)
                     
         elif current_user.user_type == 'member':
-            # 회원인 경우: 본인 운동 기록만 가능
+            # 회원인 경우: 본인만 가능
             if current_user.id != member_id:
                 return Response({
                     'success': False,
@@ -202,7 +197,27 @@ def workout_set_create_view(request, member_id):
         )
         
         # 2. 현재 로그인한 트레이너 정보 가져오기
-        from members.models import Trainer
+        from members.models import Trainer, Member
+        # 운동하는 사용자의 Member 인스턴스 (User ID 기반)
+        if target_user.user_type == 'trainer':
+            # 트레이너인 경우 - User를 Member로 캐스팅 또는 직접 처리
+            try:
+                # 방법 1: getattr로 member 속성 접근 시도
+                member_instance = getattr(target_user, 'member', None)
+                if not member_instance:
+                    # 방법 2: Member 테이블에서 user_ptr_id로 찾기
+                    member_instance = Member.objects.get(user_ptr_id=target_user.id)
+            except Member.DoesNotExist:
+                # 방법 3: User ID를 직접 사용
+                member_instance = target_user
+        else:
+            # 회원인 경우
+            try:
+                member_instance = Member.objects.get(user_ptr_id=target_user.id)
+            except Member.DoesNotExist:
+                member_instance = target_user
+        
+        # 등록하는 트레이너
         try:
             registering_trainer = Trainer.objects.get(user_ptr_id=current_user.id)
         except Trainer.DoesNotExist:
@@ -213,16 +228,31 @@ def workout_set_create_view(request, member_id):
         
         # 3. 오늘 날짜 DailyWorkout 찾기/생성
         today = timezone.now().date()
-        daily_workout, created = DailyWorkout.objects.get_or_create(
-            member_id=member_id, 
-            trainer=registering_trainer,
-            workout_date=today,
-            defaults={
-                'total_duration': timedelta(0),
-                'total_calories': 0,
-                'is_completed': False
-            }
-        )
+
+        # Member 인스턴스가 있으면 사용, 없으면 User ID 직접 사용
+        if hasattr(member_instance, 'user_ptr_id'):
+            daily_workout, created = DailyWorkout.objects.get_or_create(
+                member=member_instance,      # Member 인스턴스
+                trainer=registering_trainer,
+                workout_date=today,
+                defaults={
+                    'total_duration': timedelta(0),
+                    'total_calories': 0,
+                    'is_completed': False
+                }
+            )
+        else:
+            # User ID 직접 사용
+            daily_workout, created = DailyWorkout.objects.get_or_create(
+                member_id=target_user.id,    # User ID 직접 사용
+                trainer=registering_trainer,
+                workout_date=today,
+                defaults={
+                    'total_duration': timedelta(0),
+                    'total_calories': 0,
+                    'is_completed': False
+                }
+            )
         
         # 4. WorkoutExercise 찾기/생성
         workout_exercise, we_created = WorkoutExercise.objects.get_or_create(
