@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
 from drf_spectacular.openapi import OpenApiTypes
-from workouts.services import WorkoutRecordService
+from workouts.views import member_records_view, workout_set_create_view
 
 from members.models import Member, Trainer
 
