@@ -3,6 +3,7 @@
 from django.db import models
 from django.core.validators import MinValueValidator, MaxValueValidator
 from django.utils import timezone
+from django.conf import settings
 from decimal import Decimal
 
 
@@ -132,17 +133,17 @@ class DailyWorkout(models.Model):
     # 일일 운동 세션
 
     member = models.ForeignKey(
-        'members.Member',
+        settings.AUTH_USER_MODEL,
         on_delete=models.CASCADE,
-        related_name='daily_workouts',
-        verbose_name="회원"
+        related_name='daily_workouts_as_member',
+        verbose_name="운동하는 사용자 (회원 또는 트레이너)"
     )
 
     trainer = models.ForeignKey(
         'members.Trainer',
         on_delete=models.CASCADE,
-        related_name='daily_workouts',
-        verbose_name="트레이너"
+        related_name='daily_workouts_as_trainer',
+        verbose_name="등록한 트레이너"
     )
 
     workout_date = models.DateField(
@@ -184,7 +185,7 @@ class DailyWorkout(models.Model):
         constraints = [
             models.UniqueConstraint(
                 fields=['member', 'workout_date'],
-                name='unique_member_workout_date'
+                name='unique_user_workout_date'
             )
         ]
         indexes = [
