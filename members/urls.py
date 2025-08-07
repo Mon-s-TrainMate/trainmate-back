@@ -2,6 +2,7 @@
 
 from django.urls import path
 from . import views
+from workouts.views import MemberRecordsView
 
 urlpatterns = [
     # 내 프로필 조회/수정
@@ -15,6 +16,14 @@ urlpatterns = [
     # 트레이너의 회원 목록 조회
     # /api/members
     path('', views.trainer_member_list, name='trainer_member_list'),
+
+    # 회원/트레이너 상세 정보 조회
     # /api/members/123/
-    path('<int:member_id>/', views.member_detail, name='member_detail'),
+    path('<int:member_id>/', views.member_detail, name='member-detail'),
+
+    # 회원 운동 기록 조회 추가
+    path('<int:member_id>/records/', MemberRecordsView.as_view(), name='member-records'),
+
+    # 회원 운동 기록 조회 (새로 추가!)
+    # path('<int:member_id>/records/', views.member_records, name='member-records'),
 ]

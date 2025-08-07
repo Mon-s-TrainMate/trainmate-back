@@ -11,6 +11,7 @@ urlpatterns = [
     path('auth/', include('accounts.urls')),
     path('api/accounts/', include('accounts.urls')),
     path('api/members/', include('members.urls')),
+    # path('api/records/', include('workouts.urls')),
 
 ]
 

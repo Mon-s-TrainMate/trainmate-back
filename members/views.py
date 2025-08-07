@@ -9,7 +9,7 @@ from django.contrib.auth import get_user_model
 from django.shortcuts import get_object_or_404
 from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
 from drf_spectacular.openapi import OpenApiTypes
-from .serializers import TrainerProfileSerializer, MemberListSerializer
+from workouts.services import WorkoutRecordService
 
 from members.models import Member, Trainer
 
@@ -641,50 +641,115 @@ def trainer_detail(request, trainer_id):
 def member_detail(request, member_id):
     # 회원 상세 정보 조회
     try:
+        print(f"=== member_detail 호출됨: member_id={member_id} ===")
+        user_data = None
+        user_type = None
         # 조회하려는 회원 정보 가져오기
         try:
             member = Member.objects.get(id=member_id)
-        except Member.DoesNotExist:
-            return Response({
-                'detail': 'User not found',
-                'code': 'user_not_found'
-            }, status=status.HTTP_404_NOT_FOUND)
+            user_type = "member"
         
         # 회원 상세 정보 구성
-        user_data = {
-            'id': member.id,
-            'profile_image': member.profile_image.url if member.profile_image else None,
-            'name': getattr(member, 'name', 'Unknown'),
-            'email': getattr(member, 'email', 'unknown@example.com'),
-            'phone': getattr(member, 'phone', '010-1234-5678'),
-            'age': getattr(member, 'age', None),
-            'height_cm': float(member.height_cm) if member.height_cm else None,
-            'weight_kg': float(member.weight_kg) if member.weight_kg else None,
-            'body_fat_percentage': float(member.body_fat_percentage) if member.body_fat_percentage else None,
-            'muscle_mass_kg': float(member.muscle_mass_kg) if member.muscle_mass_kg else None,
-            'profile_completed': getattr(member, 'profile_completed', False),
-            'is_active': getattr(member, 'is_active', True),
-            'created_at': member.date_joined.isoformat() if hasattr(member, 'date_joined') else None,
-            'updated_at': member.updated_at.isoformat() if hasattr(member, 'updated_at') and member.updated_at else None,
-            'is_my_profile': request.user.id == member.user_ptr_id,
-        }
-
-        # 트레이너 정보 추가
-        if member.assigned_trainer:
-            user_data['trainer_info'] = {
-                'id': member.assigned_trainer.id,
-                'name': getattr(member.assigned_trainer, 'name', 'Unknown'),
-                'email': getattr(member.assigned_trainer, 'email', 'unknown@example.com'),
-                'phone': getattr(member.assigned_trainer, 'phone', '010-1234-5678'),
-                'profile_image': member.assigned_trainer.profile_image.url if member.assigned_trainer.profile_image else None
+            user_data = {
+                'id': member.id,
+                'profile_image': member.profile_image.url if member.profile_image else None,
+                'name': getattr(member, 'name', 'Unknown'),
+                'email': getattr(member, 'email', 'unknown@example.com'),
+                'phone': getattr(member, 'phone', '010-1234-5678'),
+                'age': getattr(member, 'age', None),
+                'height_cm': float(member.height_cm) if member.height_cm else None,
+                'weight_kg': float(member.weight_kg) if member.weight_kg else None,
+                'body_fat_percentage': float(member.body_fat_percentage) if member.body_fat_percentage else None,
+                'muscle_mass_kg': float(member.muscle_mass_kg) if member.muscle_mass_kg else None,
+                'profile_completed': getattr(member, 'profile_completed', False),
+                'is_active': getattr(member, 'is_active', True),
+                'created_at': member.date_joined.isoformat() if hasattr(member, 'date_joined') else None,
+                'updated_at': member.updated_at.isoformat() if hasattr(member, 'updated_at') and member.updated_at else None,
+                'is_my_profile': request.user.id == member.user_ptr_id,
             }
-        else:
-            user_data['trainer_info'] = None
+
+            # 트레이너 정보 추가
+            if member.assigned_trainer:
+                user_data['trainer_info'] = {
+                    'id': member.assigned_trainer.id,
+                    'name': getattr(member.assigned_trainer, 'name', 'Unknown'),
+                    'email': getattr(member.assigned_trainer, 'email', 'unknown@example.com'),
+                    'phone': getattr(member.assigned_trainer, 'phone', '010-1234-5678'),
+                    'profile_image': member.assigned_trainer.profile_image.url if member.assigned_trainer.profile_image else None
+                }
+            else:
+                user_data['trainer_info'] = None
+
+        except Member.DoesNotExist:
+            try:
+                trainer = Trainer.objects.get(id=member_id)
+                user_type = "trainer"
+                print(f"트레이너로 조회 성공: ID {member_id}")
+                
+                user_data = {
+                    'id': trainer.id,
+                    'user_type': 'trainer',
+                    'profile_image': trainer.profile_image.url if trainer.profile_image else None,
+                    'name': getattr(trainer, 'name', 'Unknown'),
+                    'email': getattr(trainer, 'email', 'unknown@example.com'),
+                    'phone': getattr(trainer, 'phone', '010-1234-5678'),
+                    'age': getattr(trainer, 'age', None),
+                    'height_cm': float(trainer.height_cm) if trainer.height_cm else None,
+                    'weight_kg': float(trainer.weight_kg) if trainer.weight_kg else None,
+                    'body_fat_percentage': float(trainer.body_fat_percentage) if trainer.body_fat_percentage else None,
+                    'muscle_mass_kg': float(trainer.muscle_mass_kg) if trainer.muscle_mass_kg else None,
+                    'profile_completed': getattr(trainer, 'profile_completed', False),
+                    'is_active': getattr(trainer, 'is_active', True),
+                    'created_at': trainer.date_joined.isoformat() if hasattr(trainer, 'date_joined') else None,
+                    'updated_at': trainer.updated_at.isoformat() if hasattr(trainer, 'updated_at') and trainer.updated_at else None,
+                    'is_my_profile': request.user.id == trainer.user_ptr_id,
+                    'member_count': trainer.get_member_count() if hasattr(trainer, 'get_member_count') else 0
+                }
+                
+                user_data['trainer_info'] = None  # 트레이너는 담당 트레이너 없음
+                
+            except Trainer.DoesNotExist:
+                print(f"Trainer 테이블에도 ID {member_id} 없음")
+                # 3. 둘 다 없으면 404 반환
+                return Response({
+                    'detail': 'User not found',
+                    'code': 'user_not_found'
+                }, status=status.HTTP_404_NOT_FOUND)
+
+        # 운동 기록 조회(workouts에서 처리)
+        try:
+            from workouts.services import WorkoutRecordService
+            print(f"운동 기록 조회 시작: user_type={user_type}, user_id={member_id}")
+            
+            if user_type == "member":
+                # 회원의 운동 기록 조회
+                workout_data = WorkoutRecordService.get_member_workout_records(member_id)
+            else:
+                # 트레이너의 경우: 일단 빈 배열 (나중에 트레이너가 진행한 운동들 조회 로직 추가 가능)
+                workout_data = {
+                    'workout_records': [],
+                    'total_workouts': 0,
+                    'has_records': False
+                }
+            
+            print(f"운동 기록 조회 완료: {workout_data['total_workouts']}개")
+                
+        except Exception as e:
+            print(f"운동 기록 조회 오류: {e}")
+            import traceback
+            traceback.print_exc()
+            workout_data = {
+                'workout_records': [],
+                'total_workouts': 0,
+                'has_records': False
+            }
         
+        print("응답 데이터 구성 완료")
         return Response({
             'success': True,
             'data': {
-                'member': user_data,
+                'member': user_data,  # 프론트엔드 호환성을 위해 'member' 키 유지
+                **workout_data
             }
         }, status=status.HTTP_200_OK)
     
