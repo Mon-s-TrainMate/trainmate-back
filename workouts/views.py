@@ -16,7 +16,6 @@ class MemberRecordsView(APIView):
     permission_classes = [IsAuthenticated]
     
     def dispatch(self, request, *args, **kwargs):
-        """모든 요청에 대해 JSON 응답 보장"""
         try:
             return super().dispatch(request, *args, **kwargs)
         except Exception as e:
@@ -27,7 +26,6 @@ class MemberRecordsView(APIView):
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
     
     def handle_exception(self, exc):
-        """인증 실패나 권한 오류 시 JSON 응답"""
         if hasattr(exc, 'status_code'):
             if exc.status_code == 401:
                 return Response({
@@ -63,7 +61,7 @@ class MemberRecordsView(APIView):
         ]
     )
     def get(self, request, member_id):
-        """회원의 운동 기록을 세트 단위로 조회 (프론트엔드 기대 형식)"""
+        # 회원의 운동 기록을 세트 단위로 조회
         try:
             # 날짜 필터 (옵션)
             date_filter = request.GET.get('date')
