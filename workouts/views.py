@@ -289,7 +289,7 @@ def workout_set_create_view(request, member_id):
                 'weight_kg': float(exercise_set.weight_kg),
                 'duration_sec': int(exercise_set.duration.total_seconds()),
                 'calories': exercise_set.calories,
-                'is_trainer_workout': is_trainer_workout,  # ✅ 트레이너 본인 운동인지 표시
+                'is_trainer_workout': is_trainer_workout,
                 'workout_totals': {
                     'total_sets': workout_exercise.total_sets,
                     'total_duration_sec': int(workout_exercise.total_duration.total_seconds()),
@@ -310,4 +310,59 @@ def workout_set_create_view(request, member_id):
             'success': False,
             'message': '운동 세트 등록에 실패했습니다.',
             'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+
+# 운동 목록 조회
+@extend_schema(
+    summary="운동 목록 조회",
+    description="등록 가능한 운동 목록을 조회합니다.",
+    parameters=[
+        OpenApiParameter(
+            name='body_part',
+            type=OpenApiTypes.STR,
+            location=OpenApiParameter.QUERY,
+            description='운동 부위별 필터링',
+            required=False
+        )
+    ],
+    responses={
+        200: OpenApiResponse(description="조회 성공"),
+        401: OpenApiResponse(description="인증 필요")
+    }, tags=["운동 관리"]
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def exercise_list_view(request):
+    # 운동 목록 조회 API
+    try:
+        exercises = Exercise.objects.filter(is_active=True)
+
+        # 운동 부위별 필터링
+        body_part = request.GET.get('body_part')
+        if body_part:
+            exercises = exercises.filter(body_part=body_part)
+
+        # 운동 부위별 그룹화
+        from collections import defaultdict
+        grouped_exercises = defaultdict(list)
+
+        for exercise in exercises:
+            grouped_exercises[exercise.body_part].append({
+                'id': exercise.id,
+                'exercise_name': exercise.exercise_name,
+                'equipment': exercise.equipment,
+                'measurement_unit': exercise.measurement_unit,
+                'weight_unit': exercise.weight_unit
+            })
+        return Response({
+            'success': True,
+            'data': dict(grouped_exercises)
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        print(f"exercise_list_view 예외 발생: {type(e).__name__}: {e}")
+        return Response({
+            'success': False,
+            'message': f'운동 목록 조회 중 오류가 발생했습니다: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

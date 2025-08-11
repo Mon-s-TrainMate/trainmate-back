@@ -10,7 +10,7 @@ urlpatterns = [
     path('admin/', admin.site.urls),
     path('auth/', include('accounts.urls')),
     path('api/members/', include('members.urls')),
-    # path('api/records/', include('workouts.urls')),
+    path('api/workouts/', include('workouts.urls')),
 
 ]
 
