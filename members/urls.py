@@ -2,7 +2,6 @@
 
 from django.urls import path
 from . import views
-from workouts.views import member_records_view, workout_set_create_view
 
 urlpatterns = [
     # 내 프로필 조회/수정
@@ -20,9 +19,4 @@ urlpatterns = [
     # 회원/트레이너 상세 정보 조회
     # /api/members/123/
     path('<int:member_id>/', views.member_detail, name='member-detail'),
-
-    # 회원 운동 기록 조회
-    path('<int:member_id>/records/', views.member_records_view, name='member-records'),
-    # 회원 운동 기록 추가
-    path('<int:member_id>/workout-sets/', views.workout_set_create_view, name='workout-set-create'),
 ]
