@@ -73,6 +73,10 @@ def member_records_view(request, member_id):
         
         # records 데이터 구성
         records_data = []
+
+        daily_total_seconds = 0
+        daily_total_calories = 0
+
         for workout_exercise in workout_exercises:
             # 해당 운동의 모든 세트 조회
             exercise_sets = workout_exercise.exercise_sets.all()
@@ -80,19 +84,26 @@ def member_records_view(request, member_id):
             if exercise_sets.exists():
                 records_data.append({
                     'id': workout_exercise.id,
-                    'is_trainer': True,  # 트레이너가 등록한 기록
+                    'is_trainer': workout_exercise.daily_workout.member == workout_exercise.daily_workout.trainer,
                     'exercise_name': workout_exercise.exercise.exercise_name,
                     'set_count': workout_exercise.total_sets,
                     'total_duration_sec': int(workout_exercise.total_duration.total_seconds()) if workout_exercise.total_duration else 0,
                     'calories_burned': workout_exercise.total_calories
                 })
+
+                daily_total_seconds += int(workout_exercise.total_duration.total_seconds()) if workout_exercise.total_duration else 0
+                daily_total_calories += workout_exercise.total_calories
         
         # 최신순으로 정렬 (order_number 기준)
         records_data.sort(key=lambda x: x['id'], reverse=True)
         
         return Response({
             'success': True,
-            'records': records_data
+            'records': records_data,
+            'daily_summary': {
+                'total_duration_sec': daily_total_seconds,
+                'total_calories': daily_total_calories
+            }
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
@@ -272,50 +283,15 @@ def workout_set_create_view(request, member_id):
         daily_workout.total_calories = sum(we.total_calories for we in all_workout_exercises)
         daily_workout.save()
 
-        # 9. 전체 세트 목록 조회
-        all_exercise_sets = ExerciseSet.objects.filter(
-            workout_exercise=workout_exercise
-        ).order_by('set_number')
-
-        # 11. 시간 표시용 포맷 계산 (추가)
-        # 방금 등록한 세트의 시간 포맷
-        current_set_minutes = int(exercise_set.duration.total_seconds()) // 60
-        current_set_seconds = int(exercise_set.duration.total_seconds()) % 60
-        current_set_duration_display = f"{current_set_minutes:02d}:{current_set_seconds:02d}"
-
-        # 총 시간 표시용 포맷
-        total_duration_minutes = int(workout_exercise.total_duration.total_seconds()) // 60
-        total_duration_seconds = int(workout_exercise.total_duration.total_seconds()) % 60
-        total_duration_display = f"{total_duration_minutes:02d}:{total_duration_seconds:02d}"
-        
         # 응답 데이터 구성
         return Response({
             'success': True,
             'message': '운동 세트가 성공적으로 등록되었습니다.',
             'data': {
-                'set_id': exercise_set.id,
-                'exercise_name': exercise.exercise_name,
-                'body_part': exercise.body_part,
-                'equipment': exercise.equipment,
-                'set_number': exercise_set.set_number,
-                'repetitions': exercise_set.repetitions,
-                'weight_kg': float(exercise_set.weight_kg),
-                'duration_sec': int(exercise_set.duration.total_seconds()),
-                'duration_display': current_set_duration_display,
-                'calories': exercise_set.calories,
-                'is_completed': True,
-                'completed_at': exercise_set.completed_at.strftime('%H:%M:%S'),
-                'is_trainer_workout': is_trainer_workout,
-                'workout_totals': {
-                    'total_sets': workout_exercise.total_sets,
-                    'total_duration_sec': int(workout_exercise.total_duration.total_seconds()),
-                    'total_duration_display': total_duration_display,
-                    'total_calories': workout_exercise.total_calories
-                },
-                'daily_totals': {
-                    'total_duration_sec': int(daily_workout.total_duration.total_seconds()),
-                    'total_calories': daily_workout.total_calories
-                }
+        'set_id': exercise_set.id,
+        'set_number': exercise_set.set_number,
+        'exercise_name': exercise.exercise_name,
+        'workout_exercise_id': workout_exercise.id
             }
         }, status=status.HTTP_201_CREATED)
         
@@ -328,7 +304,8 @@ def workout_set_create_view(request, member_id):
             'message': '운동 세트 등록에 실패했습니다.',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
 
 # 운동 목록 조회
 @extend_schema(
@@ -383,7 +360,9 @@ def exercise_list_view(request):
             'success': False,
             'message': f'운동 목록 조회 중 오류가 발생했습니다: {str(e)}'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
+
 @extend_schema(
     summary="특정 운동의 세트 목록 조회",
     description="특정 운동의 모든 세트 목록을 조회합니다",
@@ -420,13 +399,22 @@ def workout_exercise_sets_view(request, member_id, workout_exercise_id):
                 'is_completed': True,
                 'completed_at': es.completed_at.strftime('%H:%M:%S')
             })
+
+        # 총 시간 표시용 포맷 추가
+        total_duration_minutes = int(workout_exercise.total_duration.total_seconds()) // 60
+        total_duration_seconds = int(workout_exercise.total_duration.total_seconds()) % 60
+        total_duration_display = f"{total_duration_minutes:02d}:{total_duration_seconds:02d}"
         
         return Response({
             'success': True,
             'data':{
                 'workout_exercise_id': workout_exercise.id,
                 'exercise_name': workout_exercise.exercise.exercise_name,
+                'body_part': workout_exercise.exercise.body_part,
                 'total_sets': workout_exercise.total_sets,
+                'total_duration_sec': int(workout_exercise.total_duration.total_seconds()),
+                'total_duration_display': total_duration_display,
+                'total_calories': workout_exercise.total_calories,
                 'sets': sets_data
             }
         }, status=status.HTTP_200_OK)
