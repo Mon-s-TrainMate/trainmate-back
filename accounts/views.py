@@ -1,13 +1,14 @@
 # accounts/views.py
 
+from django.contrib.auth import get_user_model
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
-from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
+from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
 from rest_framework_simplejwt.tokens import RefreshToken
-from django.contrib.auth import get_user_model
+from rest_framework_simplejwt.views import TokenRefreshView
 from .serializers import SignupSerializer, LoginSerializer
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
 
 User = get_user_model()
 
@@ -24,6 +25,14 @@ def get_tokens_for_user(user):
         'refresh': str(refresh),
         'access': str(refresh.access_token),
     }
+
+
+
+# refresh token을 받아 새로운 access token 발급
+class CustomTokenRefreshView(TokenRefreshView):
+    pass
+
+
 
 @extend_schema(
     operation_id='user_signup',

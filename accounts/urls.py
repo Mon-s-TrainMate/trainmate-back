@@ -8,4 +8,5 @@ app_name = 'accounts'
 urlpatterns = [
     path('sign-up/', views.signup, name='signup'),
     path('login/', views.login_api, name='login_api'),
+    path('token/refresh/', views.CustomTokenRefreshView.as_view(), name='token_refresh'),
 ]

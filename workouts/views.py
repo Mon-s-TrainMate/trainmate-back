@@ -288,10 +288,10 @@ def workout_set_create_view(request, member_id):
             'success': True,
             'message': '운동 세트가 성공적으로 등록되었습니다.',
             'data': {
-        'set_id': exercise_set.id,
-        'set_number': exercise_set.set_number,
-        'exercise_name': exercise.exercise_name,
-        'workout_exercise_id': workout_exercise.id
+                'set_id': exercise_set.id,
+                'set_number': exercise_set.set_number,
+                'exercise_name': exercise.exercise_name,
+                'workout_exercise_id': workout_exercise.id
             }
         }, status=status.HTTP_201_CREATED)
         
