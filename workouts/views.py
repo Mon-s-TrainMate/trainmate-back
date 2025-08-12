@@ -363,6 +363,7 @@ def exercise_list_view(request):
 
 
 
+# 운동 세트 목록 조회
 @extend_schema(
     summary="특정 운동의 세트 목록 조회",
     description="특정 운동의 모든 세트 목록을 조회합니다",
@@ -425,15 +426,44 @@ def workout_exercise_sets_view(request, member_id, workout_exercise_id):
             'message': '세트 목록 조회 중 오류가 발생했습니다.',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
-    
+
+
+
 @extend_schema(
+    methods=['GET'],
     summary="개별 세트 상세 조회",
     description="특정 세트의 상세 정보를 조회합니다.",
     tags=["운동 관리"]
 )
-@api_view(['GET'])
+@extend_schema(
+    methods=['PATCH'],
+    summary="개별 세트 수정",
+    description="특정 세트의 정보를 수정합니다.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "repetitions": {"type": "integer", "description": "횟수"},
+                "weight_kg": {"type": "number", "description": "중량"},
+                "duration_sec": {"type": "integer", "description": "시간 초 단위"},
+                "calories": {"type": "integer", "description": "칼로리"},
+            }
+        }
+    },
+    tags=["운동 관리"]
+)
+@api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
-def exercise_set_detail_view(request, member_id, workout_exercise_id, set_id):
+def exercise_set_view(request, member_id, workout_exercise_id, set_id):
+    if request.method == 'GET':
+        return exercise_set_detail(request, member_id, workout_exercise_id, set_id)
+    
+    elif request.method == 'PATCH':
+        return exercise_set_update(request, member_id, workout_exercise_id, set_id)
+
+
+
+def exercise_set_detail(request, member_id, workout_exercise_id, set_id):
     try:
         exercise_set = get_object_or_404(
             ExerciseSet.objects.select_related(
@@ -468,5 +498,134 @@ def exercise_set_detail_view(request, member_id, workout_exercise_id, set_id):
         return Response({
             'success': False,
             'message': '세트 상세 조회 중 오류가 발생했습니다.',
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+def exercise_set_update(request, member_id, workout_exercise_id, set_id):
+    try:
+        current_user = request.user
+
+        from django.contrib.auth import get_user_model
+        User = get_user_model()
+
+        if current_user.user_type == 'trainer':
+            # 트레이너는 본인이거나 담당 회원의 기록을 수정 가능
+            if current_user.id != member_id:
+                try:
+                    target_user = User.objects.get(id=member_id, user_type='member')
+                except User.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': '해당 회원을 찾을 수 없습니다.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+        elif current_user.user_type == 'member':
+            # 회원은 본인의 기록만 수정 가능
+            if current_user.id != member_id:
+                return Response({
+                    'success': False,
+                    'message': '본인의 운동 기록만 수정할 수 있습니다.'
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                'success': False,
+                'message': '유효하지 않은 사용자 타입입니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        # 세트 조회 (추가됨: 세트 존재 여부 확인)
+        exercise_set = get_object_or_404(
+            ExerciseSet.objects.select_related(
+                'workout_exercise__exercise',
+                'workout_exercise__daily_workout'
+            ),
+            id=set_id,
+            workout_exercise_id=workout_exercise_id,
+            workout_exercise__daily_workout__member_id=member_id
+        )
+
+        data = request.data
+        updated_fields = []
+
+        if 'repetitions' in data:
+            exercise_set.repetitions = data['repetitions']
+            updated_fields.append('repetitions')
+            
+        if 'weight_kg' in data:
+            exercise_set.weight_kg = data['weight_kg']
+            updated_fields.append('weight_kg')
+            
+        if 'duration_sec' in data:
+            exercise_set.duration = timedelta(seconds=data['duration_sec'])
+            updated_fields.append('duration_sec')
+            
+        if 'calories' in data:
+            exercise_set.calories = data['calories']
+            updated_fields.append('calories')
+
+        if not updated_fields:
+            return Response({
+                'success': False,
+                'message': '수정할 필드가 없습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        exercise_set.save()
+
+        workout_exercise = exercise_set.workout_exercise
+        exercise_sets = ExerciseSet.objects.filter(workout_exercise=workout_exercise)
+
+        # 총 세트 수
+        workout_exercise.total_sets = exercise_sets.count()
+
+        # 총 시간 재계산
+        total_seconds = sum(
+            int(es.duration.total_seconds()) for es in exercise_sets if es.duration
+        )
+        workout_exercise.total_duration = timedelta(seconds=total_seconds)
+
+        # 총 칼로리 재계산
+        workout_exercise.total_calories = sum(es.calories for es in exercise_sets)
+        workout_exercise.save()
+
+        # DailyWorkout 총합 재계산
+        daily_workout = workout_exercise.daily_workout
+        all_workout_exercises = WorkoutExercise.objects.filter(daily_workout=daily_workout)
+
+        # 일일 총 시간 재계산
+        daily_total_seconds = sum(
+            int(we.total_duration.total_seconds()) for we in all_workout_exercises if we.total_duration
+        )
+        daily_workout.total_duration = timedelta(seconds=daily_total_seconds)
+
+        # 일일 총 칼로리 재계산
+        daily_workout.total_calories = sum(we.total_calories for we in all_workout_exercises)
+        daily_workout.save()
+
+        duration_minutes = int(exercise_set.duration.total_seconds()) // 60
+        duration_seconds = int(exercise_set.duration.total_seconds()) % 60
+
+        return Response({
+            'success': True,
+            'message': '세트가 성공적으로 수정되었습니다.',
+            'data': {
+                'set_id': exercise_set.id,
+                'set_number': exercise_set.set_number,
+                'exercise_name': exercise_set.workout_exercise.exercise.exercise_name,
+                'repetitions': exercise_set.repetitions,
+                'weight_kg': float(exercise_set.weight_kg),
+                'duration_sec': int(exercise_set.duration.total_seconds()),
+                'duration_display': f"{duration_minutes:02d}:{duration_seconds:02d}",
+                'calories': exercise_set.calories,
+                'updated_fields': updated_fields  # 추가됨: 수정된 필드 목록
+            }
+        }, status=status.HTTP_200_OK)
+        
+    except Exception as e:
+        print(f"exercise_set_update_view 예외 발생: {type(e).__name__}: {e}")
+        import traceback
+        print(f"상세 오류: {traceback.format_exc()}")
+        return Response({
+            'success': False,
+            'message': '세트 수정 중 오류가 발생했습니다.',
             'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
