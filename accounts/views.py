@@ -1,11 +1,12 @@
 # accounts/views.py
 
 from django.contrib.auth import get_user_model
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample
+from drf_spectacular.utils import extend_schema_view,extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
 from .serializers import SignupSerializer, LoginSerializer
@@ -29,6 +30,43 @@ def get_tokens_for_user(user):
 
 
 # refresh token을 받아 새로운 access token 발급
+@extend_schema_view(
+    post=extend_schema(
+        operation_id='token_refresh',
+        summary="토큰 갱신",
+        description="Refresh token을 사용하여 새로운 access token을 발급받습니다.",
+        request=TokenRefreshSerializer,
+        responses={
+            200: OpenApiResponse(
+                response=dict,
+                description="토큰 갱신 성공",
+                examples=[
+                    OpenApiExample(
+                        "토큰 갱신 성공",
+                        value={
+                            "access": "eyJ0eXAiOiJKV1QiLCJhbGciOiJIUzI1NiJ9.eyJ0b2tlbl90eXBlIjoiYWNjZXNzIiwiZXhwIjoxNjk5..."
+                        }
+                    )
+                ]
+            ),
+            401: OpenApiResponse(
+                response=dict,
+                description="유효하지 않은 refresh token",
+                examples=[
+                    OpenApiExample(
+                        "토큰 갱신 실패",
+                        value={
+                            "detail": "Token is invalid or expired",
+                            "code": "token_not_valid"
+                        }
+                    )
+                ]
+            ),
+            400: OpenApiResponse(description="잘못된 요청")
+        },
+        tags=["인증"]
+    )
+)
 class CustomTokenRefreshView(TokenRefreshView):
     pass
 
