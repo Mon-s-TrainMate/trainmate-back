@@ -13,4 +13,10 @@ urlpatterns = [
 
     # 운동 목록 조회 (새로 추가 - 프론트엔드에서 운동 선택할 때 사용)
     path('exercises/', exercise_list_view, name='exercise-list'),
+
+    # 특정 운동의 세트 목록 조회
+    path('<int:member_id>/records/<int:workout_exercise_id>/sets/', workout_exercise_sets_view, name='workout-exercise-sets'),
+
+    # 개별 세트 조회
+    path('<int:member_id>/records/<int:workout_exercise_id>/sets/<int:set_id>/', exercise_set_detail_view, name='exercise-set-detail'),
 ]

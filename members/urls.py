@@ -19,7 +19,4 @@ urlpatterns = [
     # 회원/트레이너 상세 정보 조회
     # /api/members/123/
     path('<int:member_id>/', views.member_detail, name='member-detail'),
-
-    # 회원 운동 기록 조회
-    path('<int:member_id>/records/', views.member_records_view, name='member-records'),
 ]

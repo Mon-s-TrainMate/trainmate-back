@@ -142,9 +142,6 @@ def workout_set_create_view(request, member_id):
         from django.contrib.auth import get_user_model
         User = get_user_model()
         
-        from django.contrib.auth import get_user_model
-        User = get_user_model()
-        
         if current_user.user_type == 'trainer':
             if current_user.id == member_id:
                 target_user = current_user
@@ -274,6 +271,22 @@ def workout_set_create_view(request, member_id):
         # 일일 총 칼로리
         daily_workout.total_calories = sum(we.total_calories for we in all_workout_exercises)
         daily_workout.save()
+
+        # 9. 전체 세트 목록 조회
+        all_exercise_sets = ExerciseSet.objects.filter(
+            workout_exercise=workout_exercise
+        ).order_by('set_number')
+
+        # 11. 시간 표시용 포맷 계산 (추가)
+        # 방금 등록한 세트의 시간 포맷
+        current_set_minutes = int(exercise_set.duration.total_seconds()) // 60
+        current_set_seconds = int(exercise_set.duration.total_seconds()) % 60
+        current_set_duration_display = f"{current_set_minutes:02d}:{current_set_seconds:02d}"
+
+        # 총 시간 표시용 포맷
+        total_duration_minutes = int(workout_exercise.total_duration.total_seconds()) // 60
+        total_duration_seconds = int(workout_exercise.total_duration.total_seconds()) % 60
+        total_duration_display = f"{total_duration_minutes:02d}:{total_duration_seconds:02d}"
         
         # 응답 데이터 구성
         return Response({
@@ -288,11 +301,15 @@ def workout_set_create_view(request, member_id):
                 'repetitions': exercise_set.repetitions,
                 'weight_kg': float(exercise_set.weight_kg),
                 'duration_sec': int(exercise_set.duration.total_seconds()),
+                'duration_display': current_set_duration_display,
                 'calories': exercise_set.calories,
+                'is_completed': True,
+                'completed_at': exercise_set.completed_at.strftime('%H:%M:%S'),
                 'is_trainer_workout': is_trainer_workout,
                 'workout_totals': {
                     'total_sets': workout_exercise.total_sets,
                     'total_duration_sec': int(workout_exercise.total_duration.total_seconds()),
+                    'total_duration_display': total_duration_display,
                     'total_calories': workout_exercise.total_calories
                 },
                 'daily_totals': {
@@ -365,4 +382,103 @@ def exercise_list_view(request):
         return Response({
             'success': False,
             'message': f'운동 목록 조회 중 오류가 발생했습니다: {str(e)}'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@extend_schema(
+    summary="특정 운동의 세트 목록 조회",
+    description="특정 운동의 모든 세트 목록을 조회합니다",
+    tags=["운동 관리"]
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def workout_exercise_sets_view(request, member_id, workout_exercise_id):
+    try:
+        workout_exercise = get_object_or_404(
+            WorkoutExercise.objects.select_related('exercise'),
+            id=workout_exercise_id,
+            daily_workout__member_id=member_id
+        )
+
+        # 해당 운동의 모든 세트 조회
+        exercise_sets = ExerciseSet.objects.filter(
+            workout_exercise=workout_exercise
+        ).order_by('set_number')
+
+        # 세트 목록 구성
+        sets_data = []
+        for es in exercise_sets:
+            duration_minutes = int(es.duration.total_seconds()) // 60
+            duration_seconds = int(es.duration.total_seconds()) % 60
+            sets_data.append({
+                'set_id': es.id,
+                'set_number': es.set_number,
+                'repetitions': es.repetitions,
+                'weight_kg': float(es.weight_kg),
+                'duration_sec': int(es.duration.total_seconds()),
+                'duration_display': f"{duration_minutes:02d}:{duration_seconds:02d}",
+                'calories': es.calories,
+                'is_completed': True,
+                'completed_at': es.completed_at.strftime('%H:%M:%S')
+            })
+        
+        return Response({
+            'success': True,
+            'data':{
+                'workout_exercise_id': workout_exercise.id,
+                'exercise_name': workout_exercise.exercise.exercise_name,
+                'total_sets': workout_exercise.total_sets,
+                'sets': sets_data
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': '세트 목록 조회 중 오류가 발생했습니다.',
+            'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+    
+@extend_schema(
+    summary="개별 세트 상세 조회",
+    description="특정 세트의 상세 정보를 조회합니다.",
+    tags=["운동 관리"]
+)
+@api_view(['GET'])
+@permission_classes([IsAuthenticated])
+def exercise_set_detail_view(request, member_id, workout_exercise_id, set_id):
+    try:
+        exercise_set = get_object_or_404(
+            ExerciseSet.objects.select_related(
+                'workout_exercise__exercise',
+                'workout_exercise__daily_workout'
+            ),
+            id=set_id,
+            workout_exercise_id=workout_exercise_id,
+            workout_exercise__daily_workout__member_id=member_id
+        )
+
+        duration_minutes = int(exercise_set.duration.total_seconds()) // 60
+        duration_seconds = int(exercise_set.duration.total_seconds()) % 60
+
+        return Response({
+            'success': True,
+            'data': {
+                'set_id': exercise_set.id,
+                'set_number': exercise_set.set_number,
+                'exercise_name': exercise_set.workout_exercise.exercise.exercise_name,
+                'repetitions': exercise_set.repetitions,
+                'weight_kg': float(exercise_set.weight_kg),
+                'duration_sec': int(exercise_set.duration.total_seconds()),
+                'duration_display': f"{duration_minutes:02d}:{duration_seconds:02d}",
+                'calories': exercise_set.calories,
+                'is_completed': True,
+                'completed_at': exercise_set.completed_at.strftime('%H:%M:%S')
+            }
+        }, status=status.HTTP_200_OK)
+    
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': '세트 상세 조회 중 오류가 발생했습니다.',
+            'error': str(e)
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
