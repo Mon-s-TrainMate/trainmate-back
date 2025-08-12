@@ -283,7 +283,6 @@ def trainer_member_list(request):
         try:
             member_count = trainer.get_member_count()
         except Exception as e:
-            print(f"get_member_count() 오류 : {e}")
             member_count = 0
 
         # 트레이너 프로필 정보
@@ -300,9 +299,7 @@ def trainer_member_list(request):
         # 담당 회원 목록 조회(활성 회원만)
         try:
             members = trainer.get_active_members()
-            print(f"활성 회원 수: {members.count()}명")
         except Exception as e:
-            print(f"get_active_members 오류: {e}")
             members = Member.objects.none()
 
         # 회원 데이터 구성
@@ -321,7 +318,6 @@ def trainer_member_list(request):
                 }
                 members_data.append(member_info)
             except Exception as e:
-                print(f"회원 데이터 구성 중 오류 (ID: {member.id}): {e}")
                 continue
         
         # 트레이너에게 소속된 회원이 없을 경우 메시지 추가
@@ -342,9 +338,7 @@ def trainer_member_list(request):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        print(f"trainer_member_list 예외 발생: {type(e).__name__}: {e}")
         import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'
@@ -604,9 +598,7 @@ def trainer_detail(request, trainer_id):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
-        print(f"trainer_detail 예외 발생: {type(e).__name__}: {e}")
         import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'
@@ -641,7 +633,6 @@ def trainer_detail(request, trainer_id):
 def member_detail(request, member_id):
     # 회원 상세 정보 조회
     try:
-        print(f"=== member_detail 호출됨: member_id={member_id} ===")
         user_data = None
         user_type = None
         # 조회하려는 회원 정보 가져오기
@@ -684,7 +675,6 @@ def member_detail(request, member_id):
             try:
                 trainer = Trainer.objects.get(id=member_id)
                 user_type = "trainer"
-                print(f"트레이너로 조회 성공: ID {member_id}")
                 
                 user_data = {
                     'id': trainer.id,
@@ -709,7 +699,6 @@ def member_detail(request, member_id):
                 user_data['trainer_info'] = None  # 트레이너는 담당 트레이너 없음
                 
             except Trainer.DoesNotExist:
-                print(f"Trainer 테이블에도 ID {member_id} 없음")
                 # 3. 둘 다 없으면 404 반환
                 return Response({
                     'detail': 'User not found',
@@ -719,7 +708,6 @@ def member_detail(request, member_id):
         # 운동 기록 조회(workouts에서 처리)
         try:
             from workouts.services import WorkoutRecordService
-            print(f"운동 기록 조회 시작: user_type={user_type}, user_id={member_id}")
             
             if user_type == "member":
                 # 회원의 운동 기록 조회
@@ -731,20 +719,16 @@ def member_detail(request, member_id):
                     'total_workouts': 0,
                     'has_records': False
                 }
-            
-            print(f"운동 기록 조회 완료: {workout_data['total_workouts']}개")
-                
+
+
         except Exception as e:
-            print(f"운동 기록 조회 오류: {e}")
             import traceback
-            traceback.print_exc()
             workout_data = {
                 'workout_records': [],
                 'total_workouts': 0,
                 'has_records': False
             }
-        
-        print("응답 데이터 구성 완료")
+
         return Response({
             'success': True,
             'data': {
@@ -754,9 +738,6 @@ def member_detail(request, member_id):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        print(f"member_detail 예외 발생: {type(e).__name__}: {e}")
-        import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'

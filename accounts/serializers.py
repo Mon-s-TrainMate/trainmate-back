@@ -86,9 +86,7 @@ class SignupSerializer(serializers.Serializer):
             return user
             
         except Exception as e:
-            print(f"오류: {e}")
             import traceback
-            print(traceback.format_exc())
             raise serializers.ValidationError(f"사용자 생성 중 오류가 발생했습니다: {str(e)}")
     
 # 로그인

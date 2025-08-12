@@ -73,14 +73,12 @@ class Trainer(User):
             # related_name='members'를 통한 역참조 사용
             return self.members.filter(is_active=True).count()
         except Exception as e:
-            print(f"get_member_count 오류: {e}")
             return 0
         
     def get_active_members(self):
         try:
             return self.members.filter(is_active=True)
         except Exception as e:
-            print(f"get_active_members 오류 : {e}")
             return Member.objects.none()
 
 

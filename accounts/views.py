@@ -128,7 +128,6 @@ def signup(request):
     errors = serializer.errors if serializer.errors else {}
     if not isinstance(errors, dict):
         errors = {}
-    print(errors)
 
     return Response({
         'success': False,

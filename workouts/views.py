@@ -107,9 +107,7 @@ def member_records_view(request, member_id):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        print(f"member_records_view 예외 발생: {type(e).__name__}: {e}")
         import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'success': False,
             'message': f'운동 기록 조회 중 오류가 발생했습니다: {str(e)}'
@@ -296,9 +294,6 @@ def workout_set_create_view(request, member_id):
         }, status=status.HTTP_201_CREATED)
         
     except Exception as e:
-        print(f"workout_set_create_view 예외 발생: {type(e).__name__}: {e}")
-        import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'success': False,
             'message': '운동 세트 등록에 실패했습니다.',
@@ -355,7 +350,6 @@ def exercise_list_view(request):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        print(f"exercise_list_view 예외 발생: {type(e).__name__}: {e}")
         return Response({
             'success': False,
             'message': f'운동 목록 조회 중 오류가 발생했습니다: {str(e)}'
@@ -621,9 +615,6 @@ def exercise_set_update(request, member_id, workout_exercise_id, set_id):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        print(f"exercise_set_update_view 예외 발생: {type(e).__name__}: {e}")
-        import traceback
-        print(f"상세 오류: {traceback.format_exc()}")
         return Response({
             'success': False,
             'message': '세트 수정 중 오류가 발생했습니다.',

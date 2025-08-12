@@ -92,7 +92,6 @@ class WorkoutRecordService:
             }
             
         except Exception as e:
-            print(f"운동 기록 조회 오류: {e}")
             return {
                 'workout_records': [],
                 'total_workouts': 0,
