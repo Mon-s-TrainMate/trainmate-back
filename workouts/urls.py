@@ -2,7 +2,7 @@
 
 from django.urls import path
 # from .views import WorkoutRecordCreateView, MemberRecordsView
-from .views import member_records_view, workout_set_create_view, exercise_list_view
+from .views import member_records_view, workout_set_create_view, exercise_list_view, workout_exercise_sets_view, exercise_set_detail_view
 
 urlpatterns = [
     # 운동 세트 등록
