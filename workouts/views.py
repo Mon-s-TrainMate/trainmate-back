@@ -446,6 +446,20 @@ def workout_exercise_sets_view(request, member_id, workout_exercise_id):
     },
     tags=["운동 관리"]
 )
+@extend_schema(
+    methods=['DELETE'],
+    summary="개별 세트 삭제",
+    description="특정 세트를 삭제합니다.",
+    responses={
+        200: OpenApiResponse(description="세트 삭제 성공"),
+        400: OpenApiResponse(description="잘못된 요청"),
+        401: OpenApiResponse(description="인증 필요"),
+        403: OpenApiResponse(description="권한 없음"),
+        404: OpenApiResponse(description="세트를 찾을 수 없음"),
+        500: OpenApiResponse(description="서버 내부 오류")
+    },
+    tags=["운동 관리"]
+)
 @api_view(['GET', 'PATCH'])
 @permission_classes([IsAuthenticated])
 def exercise_set_view(request, member_id, workout_exercise_id, set_id):
@@ -454,6 +468,9 @@ def exercise_set_view(request, member_id, workout_exercise_id, set_id):
     
     elif request.method == 'PATCH':
         return exercise_set_update(request, member_id, workout_exercise_id, set_id)
+    
+    elif request.method == 'DELETE':  # 추가됨: DELETE 메서드 처리
+        return exercise_set_delete(request, member_id, workout_exercise_id, set_id)
 
 
 
@@ -619,4 +636,363 @@ def exercise_set_update(request, member_id, workout_exercise_id, set_id):
             'success': False,
             'message': '세트 수정 중 오류가 발생했습니다.',
             'error': str(e)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+def exercise_set_delete(request, member_id, workout_exercise_id, set_id):
+    try:
+        current_user = request.user
+
+        # 권한 검증 
+        from django.contrib.auth import get_user_model
+        from django.db import DatabaseError, IntegrityError
+        
+        User = get_user_model()
+
+        if current_user.user_type == 'trainer':
+            if current_user.id != member_id:
+                try:
+                    target_user = User.objects.get(id=member_id, user_type='member')
+                except User.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': '해당 회원을 찾을 수 없습니다.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+                except DatabaseError:
+                    return Response({
+                        'success': False,
+                        'message': '데이터베이스 연결 오류가 발생했습니다.'
+                    }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        elif current_user.user_type == 'member':
+            if current_user.id != member_id:
+                return Response({
+                    'success': False,
+                    'message': '본인의 운동 기록만 삭제할 수 있습니다.'
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                'success': False,
+                'message': '유효하지 않은 사용자 타입입니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 세트 조회
+        try:
+            exercise_set = get_object_or_404(
+                ExerciseSet.objects.select_related(
+                    'workout_exercise__exercise',
+                    'workout_exercise__daily_workout'
+                ),
+                id=set_id,
+                workout_exercise_id=workout_exercise_id,
+                workout_exercise__daily_workout__member_id=member_id
+            )
+        except Exception as e:
+            return Response({
+                'success': False,
+                'message': '세트를 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # 마지막 세트인지 확인
+        workout_exercise = exercise_set.workout_exercise
+        remaining_sets = ExerciseSet.objects.filter(workout_exercise=workout_exercise)
+        
+        if remaining_sets.count() == 1:
+            return Response({
+                'success': False,
+                'message': '운동의 마지막 세트는 삭제할 수 없습니다. 운동 전체를 삭제해주세요.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 삭제할 세트 정보 백업 (응답용)
+        deleted_set_info = {
+            'set_id': exercise_set.id,
+            'set_number': exercise_set.set_number,
+            'exercise_name': exercise_set.workout_exercise.exercise.exercise_name
+        }
+
+        # 세트 삭제
+        try:
+            exercise_set.delete()
+            
+        except IntegrityError as e:
+            return Response({
+                'success': False,
+                'message': '데이터 무결성 제약으로 인해 삭제할 수 없습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except DatabaseError as e:
+            return Response({
+                'success': False,
+                'message': '데이터베이스 연결 오류가 발생했습니다.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 남은 세트들의 번호 재정렬
+        try:
+            remaining_sets = ExerciseSet.objects.filter(
+                workout_exercise=workout_exercise
+            ).order_by('set_number')
+            
+            for index, es in enumerate(remaining_sets, 1):
+                if es.set_number != index:
+                    es.set_number = index
+                    es.save()
+                    
+        except DatabaseError as e:
+            return Response({
+                'success': False,
+                'message': '세트 번호 재정렬 중 오류가 발생했습니다.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # WorkoutExercise 총합 재계산
+        try:
+            exercise_sets = ExerciseSet.objects.filter(workout_exercise=workout_exercise)
+            
+            workout_exercise.total_sets = exercise_sets.count()
+            
+            total_seconds = sum(
+                int(es.duration.total_seconds()) for es in exercise_sets if es.duration
+            )
+            workout_exercise.total_duration = timedelta(seconds=total_seconds)
+            
+            workout_exercise.total_calories = sum(es.calories for es in exercise_sets)
+            workout_exercise.save()
+
+            # DailyWorkout 총합 재계산
+            daily_workout = workout_exercise.daily_workout
+            all_workout_exercises = WorkoutExercise.objects.filter(daily_workout=daily_workout)
+            
+            daily_total_seconds = sum(
+                int(we.total_duration.total_seconds()) for we in all_workout_exercises if we.total_duration
+            )
+            daily_workout.total_duration = timedelta(seconds=daily_total_seconds)
+            daily_workout.total_calories = sum(we.total_calories for we in all_workout_exercises)
+            daily_workout.save()
+
+        except DatabaseError as e:
+            return Response({
+                'success': False,
+                'message': '총합 재계산 중 데이터베이스 오류가 발생했습니다.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 성공 응답 (추가됨)
+        return Response({
+            'success': True,
+            'message': '세트가 성공적으로 삭제되었습니다.',
+            'data': deleted_set_info
+        }, status=status.HTTP_200_OK)
+
+    except AttributeError as e:
+        return Response({
+            'success': False,
+            'message': '객체 속성에 접근할 수 없습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    except Exception as e:
+        return Response({
+            'success': False,
+            'message': '세트 삭제 중 예상치 못한 오류가 발생했습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+
+
+
+@extend_schema(
+    summary="기존 운동에 세트 추가",
+    description="특정 운동에 새로운 세트를 추가합니다.",
+    request={
+        "application/json": {
+            "type": "object",
+            "properties": {
+                "repetitions": {"type": "integer", "description": "횟수 (예: 15)"},
+                "weight_kg": {"type": "number", "description": "중량 (예: 12.0)"},
+                "duration_sec": {"type": "integer", "description": "시간 초 단위 (예: 390)"},
+                "calories": {"type": "integer", "description": "칼로리 (예: 120)"},
+            },
+            "required": ["repetitions", "weight_kg", "duration_sec", "calories"]
+        }
+    },
+    responses={
+        201: OpenApiResponse(description="세트 추가 성공"),
+        400: OpenApiResponse(description="유효성 검사 실패"),
+        401: OpenApiResponse(description="인증 필요"),
+        403: OpenApiResponse(description="권한 없음"),
+        404: OpenApiResponse(description="운동을 찾을 수 없음"),
+        500: OpenApiResponse(description="서버 내부 오류")
+    },
+    tags=["운동 관리"]
+)
+@api_view(['POST'])
+@permission_classes([IsAuthenticated])
+def exercise_set_create_view(request, member_id, workout_exercise_id):  # 추가됨: 기존 운동에 세트 추가
+    try:
+        current_user = request.user
+        data = request.data
+
+        # 권한 검증
+        from django.contrib.auth import get_user_model
+        from django.db import DatabaseError, IntegrityError
+        from django.core.exceptions import ValidationError as DjangoValidationError
+        
+        User = get_user_model()
+
+        if current_user.user_type == 'trainer':
+            if current_user.id != member_id:
+                try:
+                    target_user = User.objects.get(id=member_id, user_type='member')
+                except User.DoesNotExist:
+                    return Response({
+                        'success': False,
+                        'message': '해당 회원을 찾을 수 없습니다.'
+                    }, status=status.HTTP_404_NOT_FOUND)
+                except DatabaseError:
+                    return Response({
+                        'success': False,
+                        'message': '데이터베이스 연결 오류가 발생했습니다.'
+                    }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        elif current_user.user_type == 'member':
+            if current_user.id != member_id:
+                return Response({
+                    'success': False,
+                    'message': '본인의 운동 기록만 추가할 수 있습니다.'
+                }, status=status.HTTP_403_FORBIDDEN)
+        else:
+            return Response({
+                'success': False,
+                'message': '유효하지 않은 사용자 타입입니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 필수 필드 검증
+        required_fields = ['repetitions', 'weight_kg', 'duration_sec', 'calories']
+        missing_fields = [field for field in required_fields if field not in data]
+        if missing_fields:
+            return Response({
+                'success': False,
+                'message': f'필수 필드가 누락되었습니다: {", ".join(missing_fields)}'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # 데이터 타입 검증
+        try:
+            repetitions = int(data['repetitions'])
+            weight_kg = float(data['weight_kg'])
+            duration_sec = int(data['duration_sec'])
+            calories = int(data['calories'])
+            
+            if repetitions <= 0 or weight_kg < 0 or duration_sec <= 0 or calories < 0:
+                raise ValueError("값은 양수여야 합니다.")
+                
+        except (ValueError, TypeError) as e:
+            return Response({
+                'success': False,
+                'message': '입력값의 형식이 올바르지 않습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # WorkoutExercise 조회
+        try:
+            workout_exercise = get_object_or_404(
+                WorkoutExercise.objects.select_related('daily_workout'),
+                id=workout_exercise_id,
+                daily_workout__member_id=member_id
+            )
+        except Exception as e:  # 수정됨: 구체적 예외 처리
+            return Response({
+                'success': False,
+                'message': '운동 정보를 찾을 수 없습니다.'
+            }, status=status.HTTP_404_NOT_FOUND)
+
+        # 세트 번호 자동 계산
+        try:
+            last_set = ExerciseSet.objects.filter(
+                workout_exercise=workout_exercise
+            ).order_by('-set_number').first()
+            
+            next_set_number = (last_set.set_number + 1) if last_set else 1
+
+            # ExerciseSet 생성
+            exercise_set = ExerciseSet.objects.create(
+                workout_exercise=workout_exercise,
+                set_number=next_set_number,
+                repetitions=repetitions,
+                weight_kg=weight_kg,
+                duration=timedelta(seconds=duration_sec),
+                calories=calories
+            )
+
+        except IntegrityError as e:
+            return Response({
+                'success': False,
+                'message': '데이터 무결성 오류가 발생했습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+            
+        except DjangoValidationError as e:
+            return Response({
+                'success': False,
+                'message': '입력값 유효성 검사에 실패했습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+
+        # WorkoutExercise 총합 업데이트
+        try:
+            exercise_sets = ExerciseSet.objects.filter(workout_exercise=workout_exercise)
+            
+            workout_exercise.total_sets = exercise_sets.count()
+            
+            total_seconds = sum(
+                int(es.duration.total_seconds()) for es in exercise_sets if es.duration
+            )
+            workout_exercise.total_duration = timedelta(seconds=total_seconds)
+            
+            workout_exercise.total_calories = sum(es.calories for es in exercise_sets)
+            workout_exercise.save()
+
+            # DailyWorkout 총합 업데이트
+            daily_workout = workout_exercise.daily_workout
+            all_workout_exercises = WorkoutExercise.objects.filter(daily_workout=daily_workout)
+            
+            daily_total_seconds = sum(
+                int(we.total_duration.total_seconds()) for we in all_workout_exercises if we.total_duration
+            )
+            daily_workout.total_duration = timedelta(seconds=daily_total_seconds)
+            daily_workout.total_calories = sum(we.total_calories for we in all_workout_exercises)
+            daily_workout.save()
+
+        except DatabaseError as e:
+            return Response({
+                'success': False,
+                'message': '총합 계산 중 데이터베이스 오류가 발생했습니다.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+
+        # 성공 응답
+        duration_minutes = int(exercise_set.duration.total_seconds()) // 60
+        duration_seconds = int(exercise_set.duration.total_seconds()) % 60
+
+        return Response({
+            'success': True,
+            'message': '세트가 성공적으로 추가되었습니다.',
+            'data': {
+                'set_id': exercise_set.id,
+                'set_number': exercise_set.set_number,
+                'exercise_name': workout_exercise.exercise.exercise_name,
+                'repetitions': exercise_set.repetitions,
+                'weight_kg': float(exercise_set.weight_kg),
+                'duration_sec': int(exercise_set.duration.total_seconds()),
+                'duration_display': f"{duration_minutes:02d}:{duration_seconds:02d}",
+                'calories': exercise_set.calories,
+                'workout_exercise_id': workout_exercise.id
+            }
+        }, status=status.HTTP_201_CREATED)
+
+    except KeyError as e:
+        return Response({
+            'success': False,
+            'message': f'필수 필드가 누락되었습니다: {str(e)}'
+        }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except AttributeError as e:
+        return Response({
+            'success': False,
+            'message': '객체 속성에 접근할 수 없습니다.'
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+    except Exception as e:  # 수정됨: 최후의 예외 처리
+        return Response({
+            'success': False,
+            'message': '세트 추가 중 예상치 못한 오류가 발생했습니다.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)

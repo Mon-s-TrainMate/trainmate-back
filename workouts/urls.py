@@ -2,11 +2,14 @@
 
 from django.urls import path
 # from .views import WorkoutRecordCreateView, MemberRecordsView
-from .views import member_records_view, workout_set_create_view, exercise_list_view, workout_exercise_sets_view, exercise_set_view
+from .views import member_records_view, workout_set_create_view, exercise_list_view, workout_exercise_sets_view, exercise_set_view, exercise_set_create_view
 
 urlpatterns = [
     # 운동 세트 등록
     path('<int:member_id>/workout-sets/', workout_set_create_view, name='workout-set-create'),
+
+    # 세트 추가 (기존 운동에 세트 추가)
+    path('<int:member_id>/records/<int:workout_exercise_id>/sets/add/', exercise_set_create_view, name='exercise-set-create'),
     
     # 회원 운동 기록 조회
     path('<int:member_id>/records/', member_records_view, name='member-records'),
