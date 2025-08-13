@@ -1,6 +1,7 @@
 # accounts/views.py
 
 from django.contrib.auth import get_user_model
+from django.db import IntegrityError
 from drf_spectacular.utils import extend_schema_view,extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
