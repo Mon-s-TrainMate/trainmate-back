@@ -460,7 +460,7 @@ def workout_exercise_sets_view(request, member_id, workout_exercise_id):
     },
     tags=["운동 관리"]
 )
-@api_view(['GET', 'PATCH'])
+@api_view(['GET', 'PATCH', 'DELETE'])
 @permission_classes([IsAuthenticated])
 def exercise_set_view(request, member_id, workout_exercise_id, set_id):
     if request.method == 'GET':
