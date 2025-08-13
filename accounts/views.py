@@ -108,32 +108,55 @@ class CustomTokenRefreshView(TokenRefreshView):
 @permission_classes([AllowAny])
 def signup(request):
     # 회원가입 api
+    try:
+        serializer = SignupSerializer(data=request.data)
 
-    serializer = SignupSerializer(data=request.data)
+        if serializer.is_valid():
+            try:
+                user = serializer.save()
 
-    if serializer.is_valid():
-        user = serializer.save()
+                return Response({
+                    'success': True,
+                    'message': '회원가입이 완료되었습니다.',
+                    'user': {
+                        'id': user.id,
+                        'name': user.name,
+                        'email': user.email,
+                        'user_type': user.user_type
+                    }
+                }, status=status.HTTP_201_CREATED)
+        
+            except IntegrityError as e:  # 추가됨: 데이터 무결성 제약 위반
+                return Response({
+                    'success': False,
+                    'message': '이미 존재하는 이메일입니다.',
+                    'errors': {'email': ['이미 사용 중인 이메일입니다.']}
+                }, status=status.HTTP_400_BAD_REQUEST)
 
+        else:
+            errors = serializer.errors if serializer.errors else {}
+            if not isinstance(errors, dict):
+                errors = {}
+
+            return Response({
+                'success': False,
+                'message': '회원가입에 실패했습니다.',
+                'errors': errors
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+    except KeyError as e:
         return Response({
-            'success': True,
-            'message': '회원가입이 완료되었습니다.',
-            'user': {
-                'id': user.id,
-                'name': user.name,
-                'email': user.email,
-                'user_type': user.user_type
-            }
-        }, status=status.HTTP_201_CREATED)
+            'success': False,
+            'message': f'필수 필드가 누락되었습니다: {str(e)}',
+            'errors': {}
+        }, status=status.HTTP_400_BAD_REQUEST)
     
-    errors = serializer.errors if serializer.errors else {}
-    if not isinstance(errors, dict):
-        errors = {}
-
-    return Response({
-        'success': False,
-        'message': '회원가입에 실패했습니다.',
-        'errors': errors
-    }, status=status.HTTP_400_BAD_REQUEST)
+    except TypeError as e:
+        return Response({
+            'success': False,
+            'message': '요청 데이터 형식이 올바르지 않습니다.',
+            'errors': {}
+        }, status=status.HTTP_400_BAD_REQUEST)
 
 
 
@@ -208,14 +231,3 @@ def login_api(request):
         'message': '로그인에 실패했습니다.',
         'errors': serializer.errors
     }, status=status.HTTP_400_BAD_REQUEST)
-
-
-
-@api_view(['POST'])
-@permission_classes([AllowAny])
-def test_signup(request):
-    return Response({
-        'success': True,
-        'message': 'Test endpoint working',
-        'data': request.data
-    })

@@ -1,7 +1,8 @@
 # accounts/serializers.py
 
 from rest_framework import serializers
-from django.db import transaction
+from django.core.exceptions import ValidationError as DjangoValidationError
+from django.db import transaction, IntegrityError, DatabaseError
 from django.contrib.auth import get_user_model, authenticate
 import re
 
@@ -85,9 +86,53 @@ class SignupSerializer(serializers.Serializer):
             
             return user
             
+        except IntegrityError as e:
+            error_message = str(e).lower()
+            if 'email' in error_message or 'unique' in error_message:
+                raise serializers.ValidationError(
+                    {"email": "이미 존재하는 이메일입니다."}
+                )
+            raise serializers.ValidationError(
+                {"detail": "데이터 중복 오류가 발생했습니다."}
+            )
+        
+        except DjangoValidationError as e:
+            if hasattr(e, 'message_dict'):
+                raise serializers.ValidationError(e.message_dict)
+            elif hasattr(e, 'messages'):
+                raise serializers.ValidationError({"detail": e.messages[0]})
+            else:
+                raise serializers.ValidationError({"detail": "입력값 유효성 검사에 실패했습니다."})
+                
+        except ValueError as e:
+            raise serializers.ValidationError(
+                {"detail": f"잘못된 입력값입니다: {str(e)}"}
+            )
+            
+        except AttributeError as e:
+            raise serializers.ValidationError(
+                {"detail": "사용자 모델 속성 오류가 발생했습니다."}
+            )
+            
+        except ImportError as e:
+            raise serializers.ValidationError(
+                {"detail": "사용자 모델을 불러오는 중 오류가 발생했습니다."}
+            )
+            
+        except DatabaseError as e:
+            raise serializers.ValidationError(
+                {"detail": "데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}
+            )
+            
+        except PermissionError as e:
+            raise serializers.ValidationError(
+                {"detail": "사용자 생성 권한이 없습니다."}
+            )
+            
         except Exception as e:
-            import traceback
-            raise serializers.ValidationError(f"사용자 생성 중 오류가 발생했습니다: {str(e)}")
+            raise serializers.ValidationError(
+                {"detail": "사용자 생성 중 예상치 못한 오류가 발생했습니다. 관리자에게 문의해주세요."}
+            )
     
 # 로그인
 class LoginSerializer(serializers.Serializer):
@@ -101,15 +146,37 @@ class LoginSerializer(serializers.Serializer):
 
         if email and password:
             # 사용자 인증
-            user = authenticate(username=email, password=password)
+            try:
+                user = authenticate(username=email, password=password)
 
-            if user:
-                if user.is_active:
-                    data['user'] = user
-                    return data
+                if user:
+                    if user.is_active:
+                        data['user'] = user
+                        return data
+                    else:
+                        raise serializers.ValidationError(
+                            {"detail": "비활성화된 계정입니다. 관리자에게 문의해주세요."}
+                        )
                 else:
-                    raise serializers.ValidationError("비활성화된 계정입니다.")
-            else:
-                raise serializers.ValidationError("이메일 또는 비밀번호가 올바르지 않습니다.")
+                    raise serializers.ValidationError(
+                        {"detail": "이메일 또는 비밀번호가 올바르지 않습니다."}
+                    )
+                    
+            except DatabaseError:
+                raise serializers.ValidationError(
+                    {"detail": "데이터베이스 연결 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}
+                )
+                
+            except AttributeError as e:
+                raise serializers.ValidationError(
+                    {"detail": "사용자 인증 중 오류가 발생했습니다."}
+                )
+                
+            except Exception as e:
+                raise serializers.ValidationError(
+                    {"detail": "로그인 처리 중 예상치 못한 오류가 발생했습니다. 잠시 후 다시 시도해주세요."}
+                )
         else:
-            raise serializers.ValidationError("이메일과 비밀번호는 모두 입력해주세요.")
+            raise serializers.ValidationError(
+                {"detail": "이메일과 비밀번호는 모두 입력해주세요."}
+            )
