@@ -35,6 +35,7 @@ INSTALLED_APPS = [
     # second apps
     'rest_framework',
     'rest_framework_simplejwt',
+    'rest_framework_simplejwt.token_blacklist',
     'corsheaders',
     'drf_spectacular',
     # third apps
@@ -181,6 +182,7 @@ SIMPLE_JWT = {
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh 토큰 만료시간: 7일
     'ROTATE_REFRESH_TOKENS': True,                   # Refresh 토큰 갱신 시 새 토큰 발행
     'BLACKLIST_AFTER_ROTATION': True,                # 기존 Refresh 토큰 블랙리스트 처리
+    'UPDATE_LAST_LOGIN': True,
 }
 
 # drf-spectacular 설정
