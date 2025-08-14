@@ -1,12 +1,13 @@
 # accounts/views.py
 
 from django.contrib.auth import get_user_model
-from django.db import IntegrityError
+from django.db import IntegrityError, DatabaseError
 from drf_spectacular.utils import extend_schema_view,extend_schema, OpenApiResponse, OpenApiExample
 from rest_framework import status
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.response import Response
 from rest_framework.permissions import AllowAny
+from rest_framework_simplejwt.exceptions import TokenError
 from rest_framework_simplejwt.serializers import TokenRefreshSerializer
 from rest_framework_simplejwt.tokens import RefreshToken
 from rest_framework_simplejwt.views import TokenRefreshView
@@ -125,12 +126,19 @@ def signup(request):
                     }
                 }, status=status.HTTP_201_CREATED)
         
-            except IntegrityError as e:  # 추가됨: 데이터 무결성 제약 위반
+            except IntegrityError as e:
                 return Response({
                     'success': False,
                     'message': '이미 존재하는 이메일입니다.',
                     'errors': {'email': ['이미 사용 중인 이메일입니다.']}
                 }, status=status.HTTP_400_BAD_REQUEST)
+            
+            except DatabaseError:
+                return Response({
+                    'success': False,
+                    'message': '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+                    'errors': {}
+                }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
 
         else:
             errors = serializer.errors if serializer.errors else {}
@@ -143,19 +151,19 @@ def signup(request):
                 'errors': errors
             }, status=status.HTTP_400_BAD_REQUEST)
         
-    except KeyError as e:
+    except (KeyError, TypeError):
         return Response({
             'success': False,
-            'message': f'필수 필드가 누락되었습니다: {str(e)}',
+            'message': '요청 데이터가 올바르지 않습니다.',
             'errors': {}
         }, status=status.HTTP_400_BAD_REQUEST)
     
-    except TypeError as e:
+    except Exception:
         return Response({
             'success': False,
-            'message': '요청 데이터 형식이 올바르지 않습니다.',
+            'message': '서버 오류가 발생했습니다. 관리자에게 문의해주세요.',
             'errors': {}
-        }, status=status.HTTP_400_BAD_REQUEST)
+        }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -214,10 +222,25 @@ def login_api(request):
                     'user_type': user.user_type
                 }, 'tokens': tokens
             }, status=status.HTTP_200_OK)
-        except Exception as e:
+        
+        except TokenError:
             return Response({
                 'success': False,
-                'message': '로그인 처리 중 오류가 발생하였습니다.',
+                'message': '토큰 생성 중 오류가 발생했습니다.',
+                'errors': {}
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
+        
+        except DatabaseError:
+            return Response({
+                'success': False,
+                'message': '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
+                'errors': {}
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        except Exception:
+            return Response({
+                'success': False,
+                'message': '서버 오류가 발생했습니다. 관리자에게 문의해주세요.',
                 'errors': {}
             }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
