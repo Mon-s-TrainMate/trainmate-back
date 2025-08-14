@@ -260,19 +260,7 @@ def login_api(request):
 @extend_schema(
     operation_id='user_logout',
     summary="로그아웃",
-    description="Refresh token을 무효화하여 로그아웃합니다. 클라이언트에서는 저장된 토큰을 삭제해야 합니다.",
-    request={
-        'application/json': {
-            'type': 'object',
-            'properties': {
-                'refresh': {
-                    'type': 'string',
-                    'description': '무효화할 refresh token'
-                }
-            },
-            'required': ['refresh']
-        }
-    },
+    description="클라이언트에서 토큰을 삭제하여 로그아웃합니다.",
     responses={
         200: OpenApiResponse(
             response=dict,
@@ -287,28 +275,6 @@ def login_api(request):
                 )
             ]
         ),
-        400: OpenApiResponse(
-            response=dict,
-            description="잘못된 요청",
-            examples=[
-                OpenApiExample(
-                    "refresh token 누락",
-                    value={
-                        "success": False,
-                        "message": "Refresh token이 필요합니다.",
-                        "errors": {"refresh": ["이 필드는 필수입니다."]}
-                    }
-                ),
-                OpenApiExample(
-                    "유효하지 않은 토큰",
-                    value={
-                        "success": False,
-                        "message": "유효하지 않은 토큰입니다.",
-                        "errors": {"refresh": ["토큰이 유효하지 않습니다."]}
-                    }
-                )
-            ]
-        ),
         401: OpenApiResponse(description="인증 실패")
     },
     tags=["인증"]
@@ -316,58 +282,24 @@ def login_api(request):
 @api_view(['POST'])
 @permission_classes([IsAuthenticated])
 def logout_api(request):
-    # 로그아웃 API
     try:
-        # refresh token 검증
-        refresh_token = request.data.get('refresh')
-        if not refresh_token:
-            return Response({
-                'success': False,
-                'message': 'Refresh token이 필요합니다.',
-                'errors': {'refresh': ['이 필드는 필수입니다.']}
-            }, status=status.HTTP_400_BAD_REQUEST)
+        return Response({
+            'success': True,
+            'message': '로그아웃이 완료되었습니다.',
+            'user_info': {
+                'id': request.user.id,
+                'email': request.user.email,
+                'user_type': request.user.user_type
+            },
+            'instructions': {
+                'action': 'clear_local_storage',
+                'keys': ['access_token', 'refresh_token']
+            }
+        }, status=status.HTTP_200_OK)
         
-        try:
-            # refresh token 객체 생성 및 블랙리스트 추가
-            token = RefreshToken(refresh_token)
-            token.blacklist()  # 토큰을 블랙리스트에 추가
-            
-            return Response({
-                'success': True,
-                'message': '로그아웃이 완료되었습니다.'
-            }, status=status.HTTP_200_OK)
-            
-        except (InvalidToken, TokenBackendError):
-            return Response({
-                'success': False,
-                'message': '유효하지 않은 토큰입니다.',
-                'errors': {'refresh': ['토큰이 유효하지 않습니다.']}
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
-        except ValidationError as e:
-            return Response({
-                'success': False,
-                'message': '토큰 형식이 올바르지 않습니다.',
-                'errors': {'refresh': [str(e)]}
-            }, status=status.HTTP_400_BAD_REQUEST)
-            
-    except (KeyError, TypeError):
+    except Exception as e:
         return Response({
             'success': False,
-            'message': '요청 데이터가 올바르지 않습니다.',
-            'errors': {}
-        }, status=status.HTTP_400_BAD_REQUEST)
-        
-    except DatabaseError:
-        return Response({
-            'success': False,
-            'message': '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.',
-            'errors': {}
-        }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
-        
-    except Exception:
-        return Response({
-            'success': False,
-            'message': '서버 오류가 발생했습니다. 관리자에게 문의해주세요.',
+            'message': '로그아웃 처리 중 오류가 발생했습니다.',
             'errors': {}
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
