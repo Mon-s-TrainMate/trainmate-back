@@ -1,7 +1,6 @@
 # workouts/urls.py
 
 from django.urls import path
-# from .views import WorkoutRecordCreateView, MemberRecordsView
 from .views import member_records_view, workout_set_create_view, exercise_list_view, workout_exercise_sets_view, exercise_set_view, exercise_set_create_view
 
 urlpatterns = [

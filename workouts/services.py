@@ -5,7 +5,7 @@ from .models import DailyWorkout
 class WorkoutRecordService:
     @staticmethod
     def get_member_workout_records(member_id):
-        """회원의 모든 운동 기록을 조회하고 반환"""
+        # 회원의 모든 운동 기록을 조회하고 반환 
         try:
             daily_workouts = DailyWorkout.objects.filter(
                 member_id=member_id

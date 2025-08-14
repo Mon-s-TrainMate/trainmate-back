@@ -1,8 +1,9 @@
 # trainmate/settings.py
 
 
-from pathlib import Path
 from decouple import config
+from datetime import timedelta
+from pathlib import Path
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
@@ -175,8 +176,6 @@ REST_FRAMEWORK = {
 }
 
 # JWT 설정
-from datetime import timedelta
-
 SIMPLE_JWT = {
     'ACCESS_TOKEN_LIFETIME': timedelta(minutes=60),  # Access 토큰 만료시간: 1시간
     'REFRESH_TOKEN_LIFETIME': timedelta(days=7),     # Refresh 토큰 만료시간: 7일

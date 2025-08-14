@@ -1,10 +1,11 @@
 # accounts/serializers.py
 
-from rest_framework import serializers
+from django.contrib.auth import get_user_model, authenticate
 from django.core.exceptions import ValidationError as DjangoValidationError
 from django.db import transaction, IntegrityError, DatabaseError
-from django.contrib.auth import get_user_model, authenticate
 import re
+from rest_framework import serializers
+from members.models import Trainer, Member
 
 User = get_user_model()
 
@@ -59,7 +60,6 @@ class SignupSerializer(serializers.Serializer):
     @transaction.atomic
     def create(self, validated_data):
         # 사용자 생성
-        from members.models import Trainer, Member
     
         validated_data.pop('confirm_password')
         password = validated_data.pop('password')

@@ -1,5 +1,6 @@
 # workouts/views.py
 
+import traceback
 from django.shortcuts import render
 from rest_framework import status
 from rest_framework.views import APIView
@@ -13,8 +14,11 @@ from django.utils import timezone
 from django.db import models
 from datetime import timedelta
 from .models import DailyWorkout, ExerciseSet, WorkoutExercise, Exercise
-
-
+from django.contrib.auth import get_user_model
+from members.models import Trainer
+from collections import defaultdict
+from django.db import DatabaseError, IntegrityError
+from django.core.exceptions import ValidationError as DjangoValidationError
 
 @extend_schema(
     summary="회원 운동 기록 조회",
@@ -107,7 +111,6 @@ def member_records_view(request, member_id):
         }, status=status.HTTP_200_OK)
         
     except Exception as e:
-        import traceback
         return Response({
             'success': False,
             'message': f'운동 기록 조회 중 오류가 발생했습니다: {str(e)}'
@@ -147,8 +150,7 @@ def workout_set_create_view(request, member_id):
     try:
         data = request.data
         current_user = request.user
-        
-        from django.contrib.auth import get_user_model
+
         User = get_user_model()
         
         if current_user.user_type == 'trainer':
@@ -201,7 +203,6 @@ def workout_set_create_view(request, member_id):
         )
         
         # 2. 등록하는 트레이너
-        from members.models import Trainer
         try:
             registering_trainer = Trainer.objects.get(user_ptr_id=current_user.id)
         except Trainer.DoesNotExist:
@@ -333,7 +334,6 @@ def exercise_list_view(request):
             exercises = exercises.filter(body_part=body_part)
 
         # 운동 부위별 그룹화
-        from collections import defaultdict
         grouped_exercises = defaultdict(list)
 
         for exercise in exercises:
@@ -518,7 +518,6 @@ def exercise_set_update(request, member_id, workout_exercise_id, set_id):
     try:
         current_user = request.user
 
-        from django.contrib.auth import get_user_model
         User = get_user_model()
 
         if current_user.user_type == 'trainer':
@@ -645,9 +644,6 @@ def exercise_set_delete(request, member_id, workout_exercise_id, set_id):
         current_user = request.user
 
         # 권한 검증 
-        from django.contrib.auth import get_user_model
-        from django.db import DatabaseError, IntegrityError
-        
         User = get_user_model()
 
         if current_user.user_type == 'trainer':
@@ -828,9 +824,6 @@ def exercise_set_create_view(request, member_id, workout_exercise_id):  # 추가
         data = request.data
 
         # 권한 검증
-        from django.contrib.auth import get_user_model
-        from django.db import DatabaseError, IntegrityError
-        from django.core.exceptions import ValidationError as DjangoValidationError
         
         User = get_user_model()
 

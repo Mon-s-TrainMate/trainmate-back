@@ -1,16 +1,17 @@
 # members/views.py
 
+from django.contrib.auth import get_user_model
+from django.core.exceptions import ValidationError
+from django.db import DatabaseError, IntegrityError
+from django.db.models import Q
+from django.shortcuts import get_object_or_404
+from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
+from drf_spectacular.openapi import OpenApiTypes
 from rest_framework import status
 from rest_framework.response import Response
 from rest_framework.decorators import api_view, permission_classes
 from rest_framework.permissions import IsAuthenticated
-from django.db.models import Q
-from django.contrib.auth import get_user_model
-from django.shortcuts import get_object_or_404
-from drf_spectacular.utils import extend_schema, OpenApiResponse, OpenApiExample, OpenApiParameter
-from drf_spectacular.openapi import OpenApiTypes
-from workouts.views import member_records_view, workout_set_create_view
-
+from workouts.services import WorkoutRecordService
 from members.models import Member, Trainer
 
 User = get_user_model()
@@ -154,12 +155,43 @@ def my_profile_view(request):
                 'user': updated_profile
             }, status=status.HTTP_200_OK)
         
+        except IntegrityError:
+            return Response({
+                'success': False,
+                'message': '데이터 무결성 제약 위반입니다. 중복된 값이 있는지 확인해주세요.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except ValidationError as e:
+            return Response({
+                'success': False,
+                'message': '입력 데이터가 유효하지 않습니다.',
+                'errors': e.message_dict if hasattr(e, 'message_dict') else str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except ValueError as e:
+            return Response({
+                'success': False,
+                'message': '데이터 형식이 올바르지 않습니다.',
+                'error': str(e)
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
+        except DatabaseError:
+            return Response({
+                'success': False,
+                'message': '데이터베이스 오류가 발생했습니다. 잠시 후 다시 시도해주세요.'
+            }, status=status.HTTP_503_SERVICE_UNAVAILABLE)
+        
+        except (FileNotFoundError, PermissionError):
+            return Response({
+                'success': False,
+                'message': '파일 처리 중 오류가 발생했습니다.'
+            }, status=status.HTTP_400_BAD_REQUEST)
+        
         except Exception as e:
             return Response({
                 'success': False,
-                'message': '프로필 수정에 실패했습니다.',
-                'error': str(e)
-            }, status=status.HTTP_400_BAD_REQUEST)
+                'message': '서버 오류가 발생했습니다. 관리자에게 문의해주세요.'
+            }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
 
 
 
@@ -338,7 +370,6 @@ def trainer_member_list(request):
         }, status=status.HTTP_200_OK)
     
     except Exception as e:
-        import traceback
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'
@@ -598,7 +629,6 @@ def trainer_detail(request, trainer_id):
         }, status=status.HTTP_200_OK)
 
     except Exception as e:
-        import traceback
         return Response({
             'error': 'INTERNAL_SERVER_ERROR',
             'message': '서버 오류가 발생했습니다.'
@@ -707,8 +737,6 @@ def member_detail(request, member_id):
 
         # 운동 기록 조회(workouts에서 처리)
         try:
-            from workouts.services import WorkoutRecordService
-            
             if user_type == "member":
                 # 회원의 운동 기록 조회
                 workout_data = WorkoutRecordService.get_member_workout_records(member_id)
@@ -722,7 +750,6 @@ def member_detail(request, member_id):
 
 
         except Exception as e:
-            import traceback
             workout_data = {
                 'workout_records': [],
                 'total_workouts': 0,
