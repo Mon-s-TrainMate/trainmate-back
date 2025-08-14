@@ -20,8 +20,6 @@ def get_tokens_for_user(user):
 
     # 커스텀 claim 추가
     refresh['user_type'] = user.user_type
-    refresh['name'] = user.name
-    refresh['email'] = user.email
 
     return {
         'refresh': str(refresh),

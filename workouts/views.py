@@ -469,7 +469,7 @@ def exercise_set_view(request, member_id, workout_exercise_id, set_id):
     elif request.method == 'PATCH':
         return exercise_set_update(request, member_id, workout_exercise_id, set_id)
     
-    elif request.method == 'DELETE':  # 추가됨: DELETE 메서드 처리
+    elif request.method == 'DELETE':
         return exercise_set_delete(request, member_id, workout_exercise_id, set_id)
 
 
@@ -991,7 +991,7 @@ def exercise_set_create_view(request, member_id, workout_exercise_id):  # 추가
             'message': '객체 속성에 접근할 수 없습니다.'
         }, status=status.HTTP_500_INTERNAL_SERVER_ERROR)
         
-    except Exception as e:  # 수정됨: 최후의 예외 처리
+    except Exception as e:
         return Response({
             'success': False,
             'message': '세트 추가 중 예상치 못한 오류가 발생했습니다.'
