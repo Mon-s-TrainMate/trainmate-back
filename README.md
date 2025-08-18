@@ -1,5 +1,5 @@
 # 💪 TrainMate
-![TrainMate Banner](https://via.placeholder.com/800x300/FF6B6B/FFFFFF?text=TrainMate+-+Personal+Training+Management+Platform)
+<img width="1188" height="608" alt="image" src="https://github.com/user-attachments/assets/fa0f5d34-af52-4a23-95bf-df18b2f1ce9e" />
 
 <br>
 
